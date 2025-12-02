@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 
 export function registerHttpCommands(cli: CAC) {
     cli
-        .command("http", "start server")
+        .command("start", "start server")
         .option("-p, --port <number>", "Port to run the server on", { default: "3000" })
         .option("--watch", "Enable watch mode")
         .option('--routes <path>', 'Path to the routes directory')

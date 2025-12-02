@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ bxn http
+# ⚡ bxn start
 
 **A zero-config, file-system-driven HTTP framework for Node.js — type-safe, fast, and minimal.**
 
@@ -62,7 +62,7 @@ export default handler;
 2. **Run the development server**:
 
 ```bash
-npx bxn http start --watch
+npx bxn start --watch
 ```
 
 3. **That's it!** Your API is running at `http://localhost:3000`
@@ -98,14 +98,51 @@ src/routes/
 All route files export a default handler function:
 
 ```typescript
-import type { RequestHandler } from '@buildxn/http';
+import { json } from '@buildxn/http';
 
-// Basic handler
-const handler: RequestHandler = (req) => {
-  return json({ message: 'Success' });
-};
+export default () => json({ message: 'Success' });
+```
 
-export default handler;
+### Schema Validation
+
+Use `handle()` for runtime validation with TypeBox schemas:
+
+```typescript
+import { handle, json, notFound, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
+
+export default handle(
+  {
+    params: Type.Object({ id: Type.String() }),
+    body: Type.Object({ name: Type.String(), email: Type.String({ format: 'email' }) }),
+    response: {
+      [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
+      [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+    },
+  },
+  (req) => {
+    const item = db.get(req.params.id);
+    if (!item) return notFound({ error: 'Not found' });
+    return json({ id: req.params.id, name: req.body.name });
+  }
+);
+```
+
+Content-type based validation:
+
+```typescript
+import { handle, json, contentType } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
+
+export default handle(
+  {
+    body: contentType({
+      'application/json': Type.Object({ data: Type.String() }),
+      'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
+    }),
+  },
+  (req) => json({ received: req.body })
+);
 ```
 
 ### Type-Safe Parameters & Responses
@@ -209,30 +246,30 @@ const handler: RequestHandler<{}, Response, RequestBody> = async (req) => {
 ### CLI Commands
 
 ```bash
-# Development mode with watch mode for auto-reload
-bxn http start --watch
+# Development mode with watch
+bxn start --watch
 
 # Production mode
-bxn http start
+bxn start
 
 # Options:
 #   --port, -p <port>    Port to listen on (default: 3000)
 #   --routes <path>      Routes directory (auto-detected: src/routes or lib/routes)
-#   --watch              Enable watch mode with Node.js native --watch
-#   --key <path>         Path to SSL private key file (for HTTPS)
-#   --cert <path>        Path to SSL certificate file (for HTTPS)
+#   --watch              Enable watch mode
+#   --key <path>         SSL private key (for HTTPS)
+#   --cert <path>        SSL certificate (for HTTPS)
 ```
 
 ### HTTPS Support
 
-bxn http supports HTTPS by providing SSL certificate files:
+bxn start supports HTTPS by providing SSL certificate files:
 
 ```bash
-# Development with HTTPS and watch mode
-bxn http start --watch --key ./ssl/key.pem --cert ./ssl/cert.pem
+# Development with HTTPS
+bxn start --watch --key ./ssl/key.pem --cert ./ssl/cert.pem
 
 # Production with HTTPS
-bxn http start --port 443 --key ./ssl/key.pem --cert ./ssl/cert.pem
+bxn start --port 443 --key ./ssl/key.pem --cert ./ssl/cert.pem
 ```
 
 **Generating self-signed certificates for development:**
@@ -270,11 +307,11 @@ server.listen(443, () => {
 The `--watch` flag leverages Node.js native `--watch` for automatic server restarts:
 
 ```bash
-# Enable watch mode for development
-bxn http start --watch
+# Enable watch mode
+bxn start --watch
 
 # With custom port
-bxn http start --watch --port 8080
+bxn start --watch --port 8080
 ```
 
 **How it works:**
@@ -285,7 +322,7 @@ bxn http start --watch --port 8080
 
 #### Routes Directory Selection
 
-The `bxn http start` command selects the routes directory based on the `--watch` flag:
+The `bxn start` command selects the routes directory based on the `--watch` flag:
 - **With `--watch`**: Uses `./src/routes` (development with TypeScript source)
 - **Without `--watch`**: Uses `./lib/routes` (production with compiled JavaScript)
 - **With `--routes`**: Uses the specified path (explicit override)
@@ -380,7 +417,7 @@ The framework is designed to be zero-config with sensible defaults, but offers f
 
 ### CLI Options
 
-The `bxn http start` command supports these options:
+The `bxn start` command supports these options:
 
 | Option | Alias | Description | Default |
 |--------|-------|-------------|---------|
