@@ -3,13 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bxn http start --watch",
-    "start": "bxn http start",
+    "dev": "bxn http --watch",
+    "start": "bxn http",
     "build": "tsc"
   },
   "exports": null,
   "dependencies": {
-    "@buildxn/http": "workspace:^"
+    "@buildxn/http": "workspace:^",
+    "@sinclair/typebox": "^0.34.30"
   },
   "devDependencies": {
     "bxn": "workspace:^",
