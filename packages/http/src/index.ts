@@ -1,5 +1,5 @@
 export { createServer, type Routes } from './create-server.ts';
-export type { RequestHandler, EnhancedRequest } from './types.ts';
+export type { RequestHandler, EnhancedRequest, QueryParams } from './types.ts';
 export type {
   HttpResult,
   Ok,

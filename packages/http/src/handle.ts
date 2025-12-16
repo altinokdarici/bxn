@@ -1,6 +1,6 @@
 import Ajv, { type ValidateFunction, type ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
-import type { EnhancedRequest, RequestHandler } from './types.ts';
+import type { EnhancedRequest, RequestHandler, QueryParams } from './types.ts';
 import type { HttpResult } from './http-result.ts';
 import { badRequest } from './http-result.ts';
 
@@ -238,7 +238,7 @@ export function handle<
   config: HandleConfig<TParams, TQuery, TBody, THeaders, TResponse>,
   handler: SchemaHandler<
     TParams extends JSONSchema ? InferSchema<TParams> : Record<string, string>,
-    TQuery extends JSONSchema ? InferSchema<TQuery> : Record<string, string>,
+    TQuery extends JSONSchema ? InferSchema<TQuery> : QueryParams,
     TBody extends ContentTypeSchemasWrapper<infer S>
       ? InferContentTypeBody<S>
       : TBody extends JSONSchema
@@ -381,7 +381,7 @@ export function handle<
           : TBody extends JSONSchema
             ? InferSchema<TBody>
             : unknown,
-        TQuery extends JSONSchema ? InferSchema<TQuery> : Record<string, string>
+        TQuery extends JSONSchema ? InferSchema<TQuery> : QueryParams
       >,
     );
   };

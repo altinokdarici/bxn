@@ -8,10 +8,19 @@ export async function enhanceRequest(
   url: URL,
   params: Record<string, string> = {},
 ): Promise<EnhancedRequest> {
-  // Parse query parameters
-  const query: Record<string, string> = {};
+  // Parse query parameters with array support
+  // Single values: ?foo=bar -> { foo: 'bar' }
+  // Multiple values: ?foo=a&foo=b -> { foo: ['a', 'b'] }
+  const query: Record<string, string | string[]> = {};
   for (const [key, value] of url.searchParams) {
-    query[key] = value;
+    const existing = query[key];
+    if (existing === undefined) {
+      query[key] = value;
+    } else if (Array.isArray(existing)) {
+      existing.push(value);
+    } else {
+      query[key] = [existing, value];
+    }
   }
 
   // Parse request body if one exists
