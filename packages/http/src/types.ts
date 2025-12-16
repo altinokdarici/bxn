@@ -1,10 +1,10 @@
-import type { IncomingMessage } from 'node:http';
-import type { HttpResult } from './http-result.ts';
+import type { IncomingMessage } from "node:http";
+import type { HttpResult } from "./http-result.ts";
 
 export interface EnhancedRequest<
-  Params = {},
-  RequestBody = any,
-  Query = {}
+  Params = Record<string, string>,
+  RequestBody = unknown,
+  Query = Record<string, string>,
 > extends IncomingMessage {
   /** URL path params */
   params: Params;
@@ -17,11 +17,8 @@ export interface EnhancedRequest<
 export type RequestHandler<
   Params = Record<string, string>,
   Result extends HttpResult = HttpResult,
-  RequestBody = any,
-  Query = {}
-> =
-  ((
-    req: EnhancedRequest<Params, RequestBody, Query>
-  ) => Promise<Result> | Result)
-
-
+  RequestBody = unknown,
+  Query = Record<string, string>,
+> = (
+  req: EnhancedRequest<Params, RequestBody, Query>,
+) => Promise<Result> | Result;
