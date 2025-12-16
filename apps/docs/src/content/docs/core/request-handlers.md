@@ -28,25 +28,25 @@ The request object (`req`) provides access to all request data:
 ```typescript
 const handler: RequestHandler = (req) => {
   // Path parameters (from dynamic routes)
-  const params = req.params;  // { userId: '123' }
+  const params = req.params; // { userId: '123' }
 
   // Query string parameters
-  const query = req.query;    // { page: '1', limit: '10' }
+  const query = req.query; // { page: '1', limit: '10' }
 
   // Request body (automatically parsed)
-  const body = req.body;      // { name: 'John', email: 'john@example.com' }
+  const body = req.body; // { name: 'John', email: 'john@example.com' }
 
   // HTTP headers
   const headers = req.headers;
 
   // Request method
-  const method = req.method;  // 'GET', 'POST', etc.
+  const method = req.method; // 'GET', 'POST', etc.
 
   // Request URL
   const url = req.url;
 
   // Node.js IncomingMessage
-  const raw = req.raw;        // Access to underlying Node.js request
+  const raw = req.raw; // Access to underlying Node.js request
 };
 ```
 
@@ -63,7 +63,7 @@ Request bodies are **automatically parsed** based on the `Content-Type` header:
 type RequestBody = { name: string; email: string };
 
 const handler: RequestHandler<{}, any, RequestBody> = (req) => {
-  const { name, email } = req.body;  // Automatically parsed and type-safe
+  const { name, email } = req.body; // Automatically parsed and type-safe
   // ...
 };
 ```
@@ -111,7 +111,7 @@ import { json, type RequestHandler } from '@buildxn/http';
 const handler: RequestHandler = () => {
   return json({
     message: 'Hello, World!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 

@@ -9,7 +9,7 @@
 [![pnpm](https://img.shields.io/badge/pnpm-10.18.3-orange.svg)](https://pnpm.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-*Build type-safe REST APIs with zero configuration and convention over configuration*
+_Build type-safe REST APIs with zero configuration and convention over configuration_
 
 [Features](#features) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Examples](#examples) • [Contributing](#contributing)
 
@@ -19,7 +19,7 @@
 
 ## ✨ Features
 
-- **🗂️ File-System Based Routing** - Your directory structure *is* your API structure
+- **🗂️ File-System Based Routing** - Your directory structure _is_ your API structure
 - **🔒 Type-Safe** - End-to-end TypeScript support with full type inference
 - **⚡ Zero Config** - Drop your route files and go - no setup required
 - **🎯 Simple API** - Intuitive request/response helpers (`json()`, `ok()`, `notFound()`, etc.)
@@ -52,7 +52,7 @@ import { json, type RequestHandler } from '@buildxn/http';
 const handler: RequestHandler = () => {
   return json({
     message: 'Hello, World!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -89,6 +89,7 @@ src/routes/
 ```
 
 **Convention**:
+
 - Directories = path segments
 - `$` prefix = dynamic parameter (e.g., `$authorId` → `:authorId`)
 - Filename = HTTP method (`get.ts`, `post.ts`, `put.ts`, `delete.ts`, etc.)
@@ -124,7 +125,7 @@ export default handle(
     const item = db.get(req.params.id);
     if (!item) return notFound({ error: 'Not found' });
     return json({ id: req.params.id, name: req.body.name });
-  }
+  },
 );
 ```
 
@@ -141,7 +142,7 @@ export default handle(
       'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
     }),
   },
-  (req) => json({ received: req.body })
+  (req) => json({ received: req.body }),
 );
 ```
 
@@ -165,22 +166,23 @@ interface Author {
 type Response = Ok<Author> | NotFound<{ error: string }>;
 
 const handler: RequestHandler<Params, Response> = (req): Response => {
-  const { authorId } = req.params;  // ✅ Type-safe!
-  const { include } = req.query;     // ✅ Type-safe!
+  const { authorId } = req.params; // ✅ Type-safe!
+  const { include } = req.query; // ✅ Type-safe!
 
   const author = db.authors.get(authorId);
 
   if (!author) {
-    return notFound({ error: 'Author not found' });  // ✅ Type-safe!
+    return notFound({ error: 'Author not found' }); // ✅ Type-safe!
   }
 
-  return json(author);  // ✅ Type-safe!
+  return json(author); // ✅ Type-safe!
 };
 
 export default handler;
 ```
 
 **Benefits of Type-Safe Responses:**
+
 - Catch response type errors at compile time
 - Auto-completion for response data structures
 - Document all possible response types in the handler signature
@@ -236,7 +238,7 @@ type RequestBody = { name: string; email: string };
 type Response = Created<{ id: string }>;
 
 const handler: RequestHandler<{}, Response, RequestBody> = async (req) => {
-  const { name, email } = req.body;  // ✅ Parsed and type-safe
+  const { name, email } = req.body; // ✅ Parsed and type-safe
 
   // Validate and process...
   return created({ id: '123' });
@@ -287,14 +289,14 @@ import { readFileSync } from 'fs';
 
 const server = createServer(
   {
-    '/': { get: async () => json({ message: 'Hello HTTPS!' }) }
+    '/': { get: async () => json({ message: 'Hello HTTPS!' }) },
   },
   {
     https: {
       key: readFileSync('./ssl/key.pem'),
-      cert: readFileSync('./ssl/cert.pem')
-    }
-  }
+      cert: readFileSync('./ssl/cert.pem'),
+    },
+  },
 );
 
 server.listen(443, () => {
@@ -315,6 +317,7 @@ bxn start --watch --port 8080
 ```
 
 **How it works:**
+
 - When you use `--watch`, the CLI re-spawns itself with `node --watch`
 - Node.js automatically watches all imported modules
 - Server restarts when any file changes
@@ -323,6 +326,7 @@ bxn start --watch --port 8080
 #### Routes Directory Selection
 
 The `bxn start` command selects the routes directory based on the `--watch` flag:
+
 - **With `--watch`**: Uses `./src/routes` (development with TypeScript source)
 - **Without `--watch`**: Uses `./lib/routes` (production with compiled JavaScript)
 - **With `--routes`**: Uses the specified path (explicit override)
@@ -403,7 +407,7 @@ const handler: RequestHandler = () => {
   const readable = new Readable({
     read() {
       this.push(`data: ${Date.now()}\n\n`);
-    }
+    },
   });
 
   return stream(readable, 'text/event-stream');
@@ -411,6 +415,7 @@ const handler: RequestHandler = () => {
 
 export default handler;
 ```
+
 ## 🔧 Configuration
 
 The framework is designed to be zero-config with sensible defaults, but offers flexibility when needed:
@@ -419,13 +424,13 @@ The framework is designed to be zero-config with sensible defaults, but offers f
 
 The `bxn start` command supports these options:
 
-| Option | Alias | Description | Default |
-|--------|-------|-------------|---------|
-| `--port` | `-p` | Port to listen on | `3000` (or `PORT` env var) |
-| `--routes` | - | Routes directory | `./src/routes` (with `--watch`)<br/>`./lib/routes` (without `--watch`) |
-| `--watch` | - | Enable watch mode | `false` |
-| `--key` | - | SSL private key path | - |
-| `--cert` | - | SSL certificate path | - |
+| Option     | Alias | Description          | Default                                                                |
+| ---------- | ----- | -------------------- | ---------------------------------------------------------------------- |
+| `--port`   | `-p`  | Port to listen on    | `3000` (or `PORT` env var)                                             |
+| `--routes` | -     | Routes directory     | `./src/routes` (with `--watch`)<br/>`./lib/routes` (without `--watch`) |
+| `--watch`  | -     | Enable watch mode    | `false`                                                                |
+| `--key`    | -     | SSL private key path | -                                                                      |
+| `--cert`   | -     | SSL certificate path | -                                                                      |
 
 ## 🤝 Contributing
 

@@ -1,4 +1,4 @@
-import type { IncomingMessage } from "node:http";
+import type { IncomingMessage } from 'node:http';
 
 export async function parseBody(req: IncomingMessage): Promise<unknown> {
   const buffers: Buffer[] = [];
@@ -11,10 +11,10 @@ export async function parseBody(req: IncomingMessage): Promise<unknown> {
     return undefined;
   }
 
-  const contentType = req.headers["content-type"] || "";
+  const contentType = req.headers['content-type'] || '';
 
   // Parse JSON
-  if (contentType.includes("application/json")) {
+  if (contentType.includes('application/json')) {
     try {
       return JSON.parse(data);
     } catch {
@@ -23,7 +23,7 @@ export async function parseBody(req: IncomingMessage): Promise<unknown> {
   }
 
   // Parse URL-encoded form data
-  if (contentType.includes("application/x-www-form-urlencoded")) {
+  if (contentType.includes('application/x-www-form-urlencoded')) {
     return Object.fromEntries(new URLSearchParams(data));
   }
 

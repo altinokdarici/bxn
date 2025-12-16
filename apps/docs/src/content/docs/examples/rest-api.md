@@ -72,7 +72,7 @@ const handler: RequestHandler<{}, Response, any, Query> = (req): Response => {
 
   // Filter by author if specified
   if (author) {
-    posts = posts.filter(post => post.author === author);
+    posts = posts.filter((post) => post.author === author);
   }
 
   // Pagination
@@ -82,7 +82,7 @@ const handler: RequestHandler<{}, Response, any, Query> = (req): Response => {
 
   return json({
     posts: paginatedPosts,
-    total: posts.length
+    total: posts.length,
   });
 };
 
@@ -95,13 +95,7 @@ export default handler;
 
 ```typescript
 // src/routes/posts/post.ts
-import {
-  created,
-  badRequest,
-  type RequestHandler,
-  type Created,
-  type BadRequest
-} from '@buildxn/http';
+import { created, badRequest, type RequestHandler, type Created, type BadRequest } from '@buildxn/http';
 import type { Post, CreatePostBody } from '../../types';
 import { db } from '../../db';
 
@@ -139,7 +133,7 @@ const handler: RequestHandler<{}, Response, CreatePostBody> = (req): Response =>
     content: content.trim(),
     author: author.trim(),
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
 
   db.posts.create(post);
@@ -156,13 +150,7 @@ export default handler;
 
 ```typescript
 // src/routes/posts/$postId/get.ts
-import {
-  json,
-  notFound,
-  type RequestHandler,
-  type Ok,
-  type NotFound
-} from '@buildxn/http';
+import { json, notFound, type RequestHandler, type Ok, type NotFound } from '@buildxn/http';
 import type { Post } from '../../../types';
 import { db } from '../../../db';
 
@@ -198,17 +186,14 @@ import {
   type RequestHandler,
   type Ok,
   type NotFound,
-  type BadRequest
+  type BadRequest,
 } from '@buildxn/http';
 import type { Post, UpdatePostBody } from '../../../types';
 import { db } from '../../../db';
 
 type Params = { postId: string };
 
-type Response =
-  | Ok<Post>
-  | NotFound<{ error: string }>
-  | BadRequest<{ errors: string[] }>;
+type Response = Ok<Post> | NotFound<{ error: string }> | BadRequest<{ errors: string[] }>;
 
 const handler: RequestHandler<Params, Response, UpdatePostBody> = (req): Response => {
   const { postId } = req.params;
@@ -244,7 +229,7 @@ const handler: RequestHandler<Params, Response, UpdatePostBody> = (req): Respons
     ...post,
     title: title ? title.trim() : post.title,
     content: content ? content.trim() : post.content,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
 
   db.posts.update(postId, updatedPost);
@@ -261,13 +246,7 @@ export default handler;
 
 ```typescript
 // src/routes/posts/$postId/delete.ts
-import {
-  noContent,
-  notFound,
-  type RequestHandler,
-  type NoContent,
-  type NotFound
-} from '@buildxn/http';
+import { noContent, notFound, type RequestHandler, type NoContent, type NotFound } from '@buildxn/http';
 import { db } from '../../../db';
 
 type Params = { postId: string };
@@ -327,7 +306,7 @@ class PostsDB {
 }
 
 export const db = {
-  posts: new PostsDB()
+  posts: new PostsDB(),
 };
 ```
 

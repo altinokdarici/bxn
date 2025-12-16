@@ -1,10 +1,10 @@
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export async function copyTemplate(
   templatePath: string,
   targetPath: string,
-  replacements: Record<string, string>
+  replacements: Record<string, string>,
 ): Promise<void> {
   // Create the target directory if it doesn't exist
   await mkdir(targetPath, { recursive: true });
@@ -30,4 +30,3 @@ export async function copyTemplate(
     }
   }
 }
-

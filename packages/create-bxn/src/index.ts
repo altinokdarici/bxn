@@ -22,9 +22,10 @@ async function main() {
     placeholder: 'my-api',
     validate: (value) => {
       if (!value) return 'Please enter a project name';
-      if (!/^[a-z0-9-_]+$/i.test(value)) return 'Project name can only contain letters, numbers, hyphens and underscores';
+      if (!/^[a-z0-9-_]+$/i.test(value))
+        return 'Project name can only contain letters, numbers, hyphens and underscores';
       return;
-    }
+    },
   });
 
   if (p.isCancel(projectName)) {
@@ -50,16 +51,13 @@ async function main() {
   try {
     // Fetch latest versions
     s.message('Fetching latest package versions...');
-    const [httpVersion, bxnVersion] = await Promise.all([
-      getLatestVersion('@buildxn/http'),
-      getLatestVersion('bxn'),
-    ]);
+    const [httpVersion, bxnVersion] = await Promise.all([getLatestVersion('@buildxn/http'), getLatestVersion('bxn')]);
 
     // Copy template files
     const templatePath = join(__dirname, '..', 'templates', 'default');
     const replacements = {
       '{{PROJECT_NAME}}': projectName,
-      '{{RUN_CMD}}': packageManager === 'npm' ? 'npm run' : packageManager as string,
+      '{{RUN_CMD}}': packageManager === 'npm' ? 'npm run' : (packageManager as string),
       '{{HTTP_VERSION}}': httpVersion,
       '{{BXN_VERSION}}': bxnVersion,
     };
@@ -111,7 +109,7 @@ async function main() {
       ]
         .filter(Boolean)
         .join('\n'),
-      'Next steps'
+      'Next steps',
     );
 
     p.outro('Ready to build!');
@@ -121,6 +119,5 @@ async function main() {
     process.exit(1);
   }
 }
-
 
 main().catch(console.error);

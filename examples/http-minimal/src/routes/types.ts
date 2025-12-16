@@ -1,4 +1,4 @@
 export type ErrorResponse = {
-    error: string;
-    required?: string[];
+  error: string;
+  required?: string[];
 };

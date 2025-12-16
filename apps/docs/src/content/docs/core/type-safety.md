@@ -28,7 +28,7 @@ import { json, notFound, type RequestHandler } from '@buildxn/http';
 type Params = { userId: string };
 
 const handler: RequestHandler<Params> = (req) => {
-  const { userId } = req.params;  // ✅ Type-safe! TypeScript knows userId exists
+  const { userId } = req.params; // ✅ Type-safe! TypeScript knows userId exists
 
   const user = db.users.get(userId);
 
@@ -54,7 +54,7 @@ type Query = { include?: string; page?: string };
 
 const handler: RequestHandler<Params, any, any, Query> = (req) => {
   const { userId } = req.params;
-  const { include, page } = req.query;  // ✅ Type-safe!
+  const { include, page } = req.query; // ✅ Type-safe!
 
   // TypeScript knows include and page exist and are strings
 
@@ -76,7 +76,7 @@ type Body = {
 };
 
 const handler: RequestHandler<{}, any, Body> = (req) => {
-  const { name, email, age } = req.body;  // ✅ Type-safe!
+  const { name, email, age } = req.body; // ✅ Type-safe!
 
   if (!name || !email) {
     return badRequest({ error: 'Missing required fields' });
@@ -99,7 +99,7 @@ import {
   type RequestHandler,
   type Ok,
   type NotFound,
-  type BadRequest
+  type BadRequest,
 } from '@buildxn/http';
 
 type Params = { userId: string };
@@ -111,25 +111,22 @@ interface User {
 }
 
 // Define ALL possible response types
-type Response =
-  | Ok<User>
-  | NotFound<{ error: string }>
-  | BadRequest<{ error: string }>;
+type Response = Ok<User> | NotFound<{ error: string }> | BadRequest<{ error: string }>;
 
 const handler: RequestHandler<Params, Response> = (req): Response => {
   const { userId } = req.params;
 
   if (!isValidId(userId)) {
-    return badRequest({ error: 'Invalid user ID' });  // ✅ Type-safe!
+    return badRequest({ error: 'Invalid user ID' }); // ✅ Type-safe!
   }
 
   const user = db.users.get(userId);
 
   if (!user) {
-    return notFound({ error: 'User not found' });  // ✅ Type-safe!
+    return notFound({ error: 'User not found' }); // ✅ Type-safe!
   }
 
-  return json(user);  // ✅ Type-safe!
+  return json(user); // ✅ Type-safe!
 };
 
 export default handler;
@@ -141,12 +138,12 @@ bxn http provides type helpers for all HTTP responses:
 
 ```typescript
 import type {
-  Ok,           // 200 OK
-  Created,      // 201 Created
-  NoContent,    // 204 No Content
-  BadRequest,   // 400 Bad Request
-  NotFound,     // 404 Not Found
-  HttpResult    // Generic response type
+  Ok, // 200 OK
+  Created, // 201 Created
+  NoContent, // 204 No Content
+  BadRequest, // 400 Bad Request
+  NotFound, // 404 Not Found
+  HttpResult, // Generic response type
 } from '@buildxn/http';
 ```
 
@@ -158,7 +155,7 @@ Type for successful JSON responses (200 OK):
 type Response = Ok<{ users: User[] }>;
 
 const handler: RequestHandler<{}, Response> = () => {
-  return json({ users: db.users.getAll() });  // ✅ Type-safe!
+  return json({ users: db.users.getAll() }); // ✅ Type-safe!
 };
 ```
 
@@ -171,7 +168,7 @@ type Response = Created<User>;
 
 const handler: RequestHandler<{}, Response, CreateUserBody> = (req) => {
   const user = db.users.create(req.body);
-  return created(user, `/users/${user.id}`);  // ✅ Type-safe!
+  return created(user, `/users/${user.id}`); // ✅ Type-safe!
 };
 ```
 
@@ -186,10 +183,10 @@ const handler: RequestHandler<Params, Response> = (req) => {
   const user = db.users.get(req.params.userId);
 
   if (!user) {
-    return notFound({ error: 'User not found' });  // ✅ Type-safe!
+    return notFound({ error: 'User not found' }); // ✅ Type-safe!
   }
 
-  return json(user);  // ✅ Type-safe!
+  return json(user); // ✅ Type-safe!
 };
 ```
 
@@ -204,11 +201,11 @@ const handler: RequestHandler<{}, Response, Body> = (req) => {
   const errors = validate(req.body);
 
   if (errors.length > 0) {
-    return badRequest({ errors });  // ✅ Type-safe!
+    return badRequest({ errors }); // ✅ Type-safe!
   }
 
   const user = db.users.create(req.body);
-  return created(user);  // ✅ Type-safe!
+  return created(user); // ✅ Type-safe!
 };
 ```
 
@@ -226,7 +223,7 @@ const handler: RequestHandler<Params, Response> = (req) => {
     return notFound({ error: 'User not found' });
   }
 
-  return noContent();  // ✅ Type-safe!
+  return noContent(); // ✅ Type-safe!
 };
 ```
 
@@ -244,7 +241,7 @@ import {
   type Ok,
   type Created,
   type NotFound,
-  type BadRequest
+  type BadRequest,
 } from '@buildxn/http';
 
 // Domain types
@@ -268,10 +265,7 @@ type UpdateBody = {
 // Response types
 type GetResponse = Ok<User> | NotFound<{ error: string }>;
 
-type UpdateResponse =
-  | Ok<User>
-  | NotFound<{ error: string }>
-  | BadRequest<{ errors: string[] }>;
+type UpdateResponse = Ok<User> | NotFound<{ error: string }> | BadRequest<{ errors: string[] }>;
 
 // GET handler
 const getHandler: RequestHandler<Params, GetResponse, any, Query> = (req): GetResponse => {

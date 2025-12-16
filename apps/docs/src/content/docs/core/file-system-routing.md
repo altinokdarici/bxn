@@ -98,6 +98,7 @@ export default handler;
 ```
 
 **Maps to:**
+
 - `GET /users`
 - `POST /users`
 

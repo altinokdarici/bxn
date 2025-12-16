@@ -70,11 +70,7 @@ const user = db.users.create(req.body);
 return created(user, `/users/${user.id}`);
 
 // Created with custom headers
-return created(
-  { id: '123' },
-  '/users/123',
-  { 'X-Request-ID': 'abc123' }
-);
+return created({ id: '123' }, '/users/123', { 'X-Request-ID': 'abc123' });
 ```
 
 ## noContent()
@@ -119,17 +115,11 @@ return badRequest({ error: 'Invalid input' });
 
 // Validation errors
 return badRequest({
-  errors: [
-    'Name is required',
-    'Email must be valid'
-  ]
+  errors: ['Name is required', 'Email must be valid'],
 });
 
 // With custom headers
-return badRequest(
-  { error: 'Invalid token' },
-  { 'WWW-Authenticate': 'Bearer' }
-);
+return badRequest({ error: 'Invalid token' }, { 'WWW-Authenticate': 'Bearer' });
 ```
 
 ## notFound()
@@ -155,14 +145,11 @@ return notFound({ error: 'User not found' });
 return notFound({
   error: 'Resource not found',
   resource: 'user',
-  id: userId
+  id: userId,
 });
 
 // With custom headers
-return notFound(
-  { error: 'Page not found' },
-  { 'X-Reason': 'deleted' }
-);
+return notFound({ error: 'Page not found' }, { 'X-Reason': 'deleted' });
 ```
 
 ## status()
@@ -183,17 +170,13 @@ status(
 
 ```typescript
 // Custom status code
-return status(418);  // I'm a teapot
+return status(418); // I'm a teapot
 
 // With data
 return status(429, { error: 'Too many requests' });
 
 // With headers
-return status(
-  503,
-  { error: 'Service unavailable' },
-  { 'Retry-After': '60' }
-);
+return status(503, { error: 'Service unavailable' }, { 'Retry-After': '60' });
 
 // Common custom status codes
 return status(401, { error: 'Unauthorized' });
@@ -228,7 +211,7 @@ import { Readable } from 'node:stream';
 const readable = new Readable({
   read() {
     this.push(`data: ${JSON.stringify({ time: Date.now() })}\n\n`);
-  }
+  },
 });
 
 return stream(readable, 'text/event-stream');
@@ -238,11 +221,7 @@ const fileStream = fs.createReadStream('large-file.json');
 return stream(fileStream, 'application/json');
 
 // Custom headers
-return stream(
-  readable,
-  'text/event-stream',
-  { 'Cache-Control': 'no-cache' }
-);
+return stream(readable, 'text/event-stream', { 'Cache-Control': 'no-cache' });
 ```
 
 ## Response Types
@@ -251,12 +230,12 @@ All response helpers return typed results that can be used in your handler signa
 
 ```typescript
 import type {
-  Ok,           // 200 OK
-  Created,      // 201 Created
-  NoContent,    // 204 No Content
-  BadRequest,   // 400 Bad Request
-  NotFound,     // 404 Not Found
-  HttpResult    // Generic response type
+  Ok, // 200 OK
+  Created, // 201 Created
+  NoContent, // 204 No Content
+  BadRequest, // 400 Bad Request
+  NotFound, // 404 Not Found
+  HttpResult, // Generic response type
 } from '@buildxn/http';
 ```
 
@@ -270,13 +249,10 @@ import {
   type RequestHandler,
   type Ok,
   type NotFound,
-  type BadRequest
+  type BadRequest,
 } from '@buildxn/http';
 
-type Response =
-  | Ok<User>
-  | NotFound<{ error: string }>
-  | BadRequest<{ errors: string[] }>;
+type Response = Ok<User> | NotFound<{ error: string }> | BadRequest<{ errors: string[] }>;
 
 const handler: RequestHandler<Params, Response> = (req): Response => {
   // TypeScript enforces that you can only return these types
@@ -341,7 +317,7 @@ import {
   type Created,
   type NoContent,
   type NotFound,
-  type BadRequest
+  type BadRequest,
 } from '@buildxn/http';
 
 // GET /users/:userId

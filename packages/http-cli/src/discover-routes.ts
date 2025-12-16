@@ -12,9 +12,7 @@ export async function discoverRoutes(dir: string, basePath = ''): Promise<Routes
 
     if (entry.isDirectory()) {
       // Convert $param directories to :param route segments
-      const segment = entry.name.startsWith('$')
-        ? `:${entry.name.slice(1)}`
-        : entry.name;
+      const segment = entry.name.startsWith('$') ? `:${entry.name.slice(1)}` : entry.name;
 
       // Recursively scan subdirectories
       const subRoutes = await discoverRoutes(fullPath, `${basePath}/${segment}`);

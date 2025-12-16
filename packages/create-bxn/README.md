@@ -13,6 +13,7 @@ yarn create bxn
 ```
 
 This will:
+
 1. Prompt for a project name
 2. Ask which package manager you prefer (pnpm/npm/yarn)
 3. Create a new directory with:

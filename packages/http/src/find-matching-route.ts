@@ -1,6 +1,6 @@
 export interface RouteMatch {
-    params: Record<string, string>;
-    pattern: string;
+  params: Record<string, string>;
+  pattern: string;
 }
 
 /**
@@ -8,31 +8,31 @@ export interface RouteMatch {
  * and extracts the parameter names
  */
 function parseRoutePattern(pattern: string): { regex: RegExp; paramNames: string[] } {
-    const paramNames: string[] = [];
+  const paramNames: string[] = [];
 
-    // Escape special regex characters except for :param
-    let regexPattern = pattern
-        .split('/')
-        .map(segment => {
-            // Check if this segment is a parameter (starts with :)
-            if (segment.startsWith(':')) {
-                const paramName = segment.slice(1);
-                paramNames.push(paramName);
-                // Match any non-slash characters
-                return '([^/]+)';
-            }
-            // Escape special regex characters in literal segments
-            return segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        })
-        .join('/');
+  // Escape special regex characters except for :param
+  let regexPattern = pattern
+    .split('/')
+    .map((segment) => {
+      // Check if this segment is a parameter (starts with :)
+      if (segment.startsWith(':')) {
+        const paramName = segment.slice(1);
+        paramNames.push(paramName);
+        // Match any non-slash characters
+        return '([^/]+)';
+      }
+      // Escape special regex characters in literal segments
+      return segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    })
+    .join('/');
 
-    // Ensure exact match (start to end)
-    regexPattern = `^${regexPattern}$`;
+  // Ensure exact match (start to end)
+  regexPattern = `^${regexPattern}$`;
 
-    return {
-        regex: new RegExp(regexPattern),
-        paramNames
-    };
+  return {
+    regex: new RegExp(regexPattern),
+    paramNames,
+  };
 }
 
 /**
@@ -42,26 +42,26 @@ function parseRoutePattern(pattern: string): { regex: RegExp; paramNames: string
  * @returns RouteMatch if matched, null otherwise
  */
 function matchRoute(pattern: string, pathname: string): RouteMatch | null {
-    const { regex, paramNames } = parseRoutePattern(pattern);
-    const match = pathname.match(regex);
+  const { regex, paramNames } = parseRoutePattern(pattern);
+  const match = pathname.match(regex);
 
-    if (!match) {
-        return null;
+  if (!match) {
+    return null;
+  }
+
+  // Extract parameter values (match[0] is the full match, parameters start at index 1)
+  const params: Record<string, string> = {};
+  paramNames.forEach((name, index) => {
+    const value = match[index + 1];
+    if (value !== undefined) {
+      params[name] = value;
     }
+  });
 
-    // Extract parameter values (match[0] is the full match, parameters start at index 1)
-    const params: Record<string, string> = {};
-    paramNames.forEach((name, index) => {
-        const value = match[index + 1];
-        if (value !== undefined) {
-            params[name] = value;
-        }
-    });
-
-    return {
-        params,
-        pattern
-    };
+  return {
+    params,
+    pattern,
+  };
 }
 
 /**
@@ -71,11 +71,11 @@ function matchRoute(pattern: string, pathname: string): RouteMatch | null {
  * @returns RouteMatch if a pattern matches, null otherwise
  */
 export function findMatchingRoute(patterns: string[], pathname: string): RouteMatch | null {
-    for (const pattern of patterns) {
-        const match = matchRoute(pattern, pathname);
-        if (match) {
-            return match;
-        }
+  for (const pattern of patterns) {
+    const match = matchRoute(pattern, pathname);
+    if (match) {
+      return match;
     }
-    return null;
+  }
+  return null;
 }

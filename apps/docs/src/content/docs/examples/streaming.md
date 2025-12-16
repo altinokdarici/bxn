@@ -20,14 +20,14 @@ const handler: RequestHandler = () => {
   const readable = new Readable({
     read() {
       // This method is called when the client is ready for more data
-    }
+    },
   });
 
   // Send an event every second
   const interval = setInterval(() => {
     const data = {
       timestamp: Date.now(),
-      message: 'Hello from server!'
+      message: 'Hello from server!',
     };
 
     readable.push(`data: ${JSON.stringify(data)}\n\n`);
@@ -40,7 +40,7 @@ const handler: RequestHandler = () => {
 
   return stream(readable, 'text/event-stream', {
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
+    Connection: 'keep-alive',
   });
 };
 
@@ -57,7 +57,7 @@ import { eventBus } from '../../lib/events';
 
 const handler: RequestHandler = () => {
   const readable = new Readable({
-    read() {}
+    read() {},
   });
 
   // Listen to application events
@@ -86,8 +86,8 @@ const handler: RequestHandler = () => {
 
   return stream(readable, 'text/event-stream', {
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'X-Accel-Buffering': 'no' // Disable buffering in nginx
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no', // Disable buffering in nginx
   });
 };
 
@@ -99,37 +99,37 @@ export default handler;
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>SSE Example</title>
-</head>
-<body>
-  <div id="events"></div>
+  <head>
+    <title>SSE Example</title>
+  </head>
+  <body>
+    <div id="events"></div>
 
-  <script>
-    const eventsDiv = document.getElementById('events');
-    const eventSource = new EventSource('http://localhost:3000/events');
+    <script>
+      const eventsDiv = document.getElementById('events');
+      const eventSource = new EventSource('http://localhost:3000/events');
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const p = document.createElement('p');
-      p.textContent = `${data.timestamp}: ${data.message}`;
-      eventsDiv.appendChild(p);
-    };
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const p = document.createElement('p');
+        p.textContent = `${data.timestamp}: ${data.message}`;
+        eventsDiv.appendChild(p);
+      };
 
-    // Handle custom event types
-    eventSource.addEventListener('update', (event) => {
-      console.log('Update:', JSON.parse(event.data));
-    });
+      // Handle custom event types
+      eventSource.addEventListener('update', (event) => {
+        console.log('Update:', JSON.parse(event.data));
+      });
 
-    eventSource.addEventListener('connected', (event) => {
-      console.log('Connected:', JSON.parse(event.data));
-    });
+      eventSource.addEventListener('connected', (event) => {
+        console.log('Connected:', JSON.parse(event.data));
+      });
 
-    eventSource.onerror = (error) => {
-      console.error('EventSource error:', error);
-    };
-  </script>
-</body>
+      eventSource.onerror = (error) => {
+        console.error('EventSource error:', error);
+      };
+    </script>
+  </body>
 </html>
 ```
 
@@ -158,7 +158,7 @@ const handler: RequestHandler<Params> = (req) => {
 
   return stream(fileStream, 'application/octet-stream', {
     'Content-Length': stats.size.toString(),
-    'Content-Disposition': `attachment; filename="${fileId}"`
+    'Content-Disposition': `attachment; filename="${fileId}"`,
   });
 };
 
@@ -179,7 +179,7 @@ const handler: RequestHandler = () => {
   const users = db.users.getAll();
 
   const readable = new Readable({
-    read() {}
+    read() {},
   });
 
   // Send CSV header
@@ -195,7 +195,7 @@ const handler: RequestHandler = () => {
   readable.push(null);
 
   return stream(readable, 'text/csv', {
-    'Content-Disposition': 'attachment; filename="users.csv"'
+    'Content-Disposition': 'attachment; filename="users.csv"',
   });
 };
 
@@ -214,7 +214,7 @@ import { db } from '../../../db';
 
 const handler: RequestHandler = () => {
   const readable = new Readable({
-    read() {}
+    read() {},
   });
 
   // Stream logs as JSON Lines (JSONL)
@@ -227,7 +227,7 @@ const handler: RequestHandler = () => {
   readable.push(null);
 
   return stream(readable, 'application/x-ndjson', {
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
   });
 };
 
@@ -255,42 +255,50 @@ const handler: RequestHandler<Params> = (req) => {
   }
 
   const readable = new Readable({
-    read() {}
+    read() {},
   });
 
   // Send initial status
-  readable.push(`data: ${JSON.stringify({
-    status: task.status,
-    progress: 0
-  })}\n\n`);
+  readable.push(
+    `data: ${JSON.stringify({
+      status: task.status,
+      progress: 0,
+    })}\n\n`,
+  );
 
   // Listen for progress updates
   task.on('progress', (progress: number) => {
-    readable.push(`data: ${JSON.stringify({
-      status: 'processing',
-      progress
-    })}\n\n`);
+    readable.push(
+      `data: ${JSON.stringify({
+        status: 'processing',
+        progress,
+      })}\n\n`,
+    );
   });
 
   task.on('complete', (result: any) => {
-    readable.push(`data: ${JSON.stringify({
-      status: 'complete',
-      progress: 100,
-      result
-    })}\n\n`);
+    readable.push(
+      `data: ${JSON.stringify({
+        status: 'complete',
+        progress: 100,
+        result,
+      })}\n\n`,
+    );
     readable.push(null);
   });
 
   task.on('error', (error: Error) => {
-    readable.push(`data: ${JSON.stringify({
-      status: 'error',
-      error: error.message
-    })}\n\n`);
+    readable.push(
+      `data: ${JSON.stringify({
+        status: 'error',
+        error: error.message,
+      })}\n\n`,
+    );
     readable.push(null);
   });
 
   return stream(readable, 'text/event-stream', {
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
   });
 };
 
@@ -339,7 +347,7 @@ const handler: RequestHandler = () => {
       } catch (error) {
         this.destroy(error as Error);
       }
-    }
+    },
   });
 
   return stream(readable, 'application/x-ndjson');

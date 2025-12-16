@@ -41,7 +41,7 @@ export async function start({ port, routes, sslKey, sslCert, watch }: StartOptio
       p.log.success('HTTPS enabled');
       httpsOptions = {
         key: readFileSync(sslKey),
-        cert: readFileSync(sslCert)
+        cert: readFileSync(sslCert),
       };
     }
 

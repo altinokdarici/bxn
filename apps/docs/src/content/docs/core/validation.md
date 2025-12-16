@@ -16,7 +16,7 @@ export default handle(
     params: Type.Object({ id: Type.String() }),
     body: Type.Object({
       name: Type.String(),
-      email: Type.String({ format: 'email' })
+      email: Type.String({ format: 'email' }),
     }),
     response: {
       [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
@@ -28,18 +28,18 @@ export default handle(
     const item = db.get(req.params.id);
     if (!item) return notFound({ error: 'Not found' });
     return json({ id: req.params.id, name: req.body.name });
-  }
+  },
 );
 ```
 
 ## Config Options
 
-| Option | Description |
-|--------|-------------|
-| `params` | URL path parameters schema |
-| `query` | Query string parameters schema |
-| `body` | Request body schema |
-| `headers` | Request headers schema |
+| Option     | Description                     |
+| ---------- | ------------------------------- |
+| `params`   | URL path parameters schema      |
+| `query`    | Query string parameters schema  |
+| `body`     | Request body schema             |
+| `headers`  | Request headers schema          |
 | `response` | Response schemas by status code |
 
 ## Validation Errors
@@ -52,9 +52,7 @@ Invalid requests return 400 with details:
   "details": [
     {
       "field": "body",
-      "errors": [
-        { "path": "/email", "message": "must match format \"email\"", "keyword": "format" }
-      ]
+      "errors": [{ "path": "/email", "message": "must match format \"email\"", "keyword": "format" }]
     }
   ]
 }
@@ -75,7 +73,7 @@ export default handle(
       'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
     }),
   },
-  (req) => json({ received: req.body })
+  (req) => json({ received: req.body }),
 );
 ```
 
@@ -94,7 +92,7 @@ export default handle(
   (req) => {
     const apiKey = req.headers['x-api-key'];
     return json({ authenticated: true });
-  }
+  },
 );
 ```
 
@@ -111,7 +109,7 @@ export default handle(
   (req) => {
     // query.page and query.limit are typed as numbers
     return json({ page: req.query.page, limit: req.query.limit });
-  }
+  },
 );
 ```
 

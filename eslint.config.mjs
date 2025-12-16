@@ -1,17 +1,11 @@
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import globals from "globals";
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import globals from 'globals';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/node_modules/**",
-      "**/lib/**",
-      "**/dist/**",
-      "**/.astro/**",
-      "**/templates/**",
-      "eslint.config.mjs",
-    ],
+    ignores: ['**/node_modules/**', '**/lib/**', '**/dist/**', '**/.astro/**', '**/templates/**', 'eslint.config.mjs'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -26,4 +20,5 @@ export default tseslint.config(
       },
     },
   },
+  eslintConfigPrettier,
 );

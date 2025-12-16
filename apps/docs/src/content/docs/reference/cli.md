@@ -16,19 +16,20 @@ bxn start [options]
 ```
 
 **Features:**
+
 - Auto-detects routes directory (`src/routes` or `lib/routes`)
 - Runs compiled JavaScript or TypeScript source files
 - Optional watch mode using Node.js native `--watch` flag
 
 **Options:**
 
-| Option | Alias | Type | Default | Description |
-|--------|-------|------|---------|-------------|
-| `--port` | `-p` | number | `3000` | Port to listen on |
-| `--routes` | - | string | `./src/routes` with `--watch`<br/>`./lib/routes` without `--watch` | Routes directory path |
-| `--watch` | - | boolean | `false` | Enable watch mode with Node.js --watch |
-| `--key` | - | string | - | Path to SSL private key file (for HTTPS) |
-| `--cert` | - | string | - | Path to SSL certificate file (for HTTPS) |
+| Option     | Alias | Type    | Default                                                            | Description                              |
+| ---------- | ----- | ------- | ------------------------------------------------------------------ | ---------------------------------------- |
+| `--port`   | `-p`  | number  | `3000`                                                             | Port to listen on                        |
+| `--routes` | -     | string  | `./src/routes` with `--watch`<br/>`./lib/routes` without `--watch` | Routes directory path                    |
+| `--watch`  | -     | boolean | `false`                                                            | Enable watch mode with Node.js --watch   |
+| `--key`    | -     | string  | -                                                                  | Path to SSL private key file (for HTTPS) |
+| `--cert`   | -     | string  | -                                                                  | Path to SSL certificate file (for HTTPS) |
 
 **Examples:**
 
@@ -63,6 +64,7 @@ The `bxn start` command supports HTTPS by providing SSL certificate files.
 ### Requirements
 
 To enable HTTPS, you must provide both:
+
 - `--key` - Path to your SSL private key file (PEM format)
 - `--cert` - Path to your SSL certificate file (PEM format)
 
@@ -139,15 +141,12 @@ You can also configure HTTPS programmatically using the `createServer` API:
 import { createServer } from '@buildxn/http';
 import { readFileSync } from 'fs';
 
-const server = createServer(
-  routes,
-  {
-    https: {
-      key: readFileSync('./ssl/key.pem'),
-      cert: readFileSync('./ssl/cert.pem')
-    }
-  }
-);
+const server = createServer(routes, {
+  https: {
+    key: readFileSync('./ssl/key.pem'),
+    cert: readFileSync('./ssl/cert.pem'),
+  },
+});
 
 server.listen(443);
 ```
@@ -157,6 +156,7 @@ server.listen(443);
 The `--watch` flag uses Node.js native `--watch` feature for automatic server restarts when files change.
 
 **How it works:**
+
 - When you run `bxn start --watch`, the CLI automatically re-spawns itself with `node --watch`
 - Node.js watches all imported modules and restarts the server when they change
 - No additional configuration or patterns needed
@@ -269,6 +269,7 @@ bxn start --watch --routes ./custom/routes
 ```
 
 **Why this design?**
+
 - **Predictable**: You always know which directory is used based on the flag
 - **Simple**: No filesystem checks or guessing
 - **Best practices**: Enforces the natural workflow (develop in `src/`, run production from `lib/`)

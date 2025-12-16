@@ -1,5 +1,5 @@
-import type { IncomingMessage } from "node:http";
-import type { HttpResult } from "./http-result.ts";
+import type { IncomingMessage } from 'node:http';
+import type { HttpResult } from './http-result.ts';
 
 export interface EnhancedRequest<
   Params = Record<string, string>,
@@ -19,6 +19,4 @@ export type RequestHandler<
   Result extends HttpResult = HttpResult,
   RequestBody = unknown,
   Query = Record<string, string>,
-> = (
-  req: EnhancedRequest<Params, RequestBody, Query>,
-) => Promise<Result> | Result;
+> = (req: EnhancedRequest<Params, RequestBody, Query>) => Promise<Result> | Result;

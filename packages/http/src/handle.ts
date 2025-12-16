@@ -134,7 +134,7 @@ export interface HandleConfig<
   TQuery extends JSONSchema | undefined = undefined,
   TBody extends JSONSchema | ContentTypeSchemasWrapper | undefined = undefined,
   THeaders extends JSONSchema | undefined = undefined,
-  TResponse extends ResponseSchemas | undefined = undefined
+  TResponse extends ResponseSchemas | undefined = undefined,
 > {
   /** Schema for URL path parameters */
   params?: TParams;
@@ -182,13 +182,8 @@ export interface ValidationError {
 /**
  * Handler function type with inferred types from schemas.
  */
-export type SchemaHandler<
-  TParams,
-  TQuery,
-  TBody,
-  TResponse extends HttpResult = HttpResult
-> = (
-  req: EnhancedRequest<TParams, TBody, TQuery>
+export type SchemaHandler<TParams, TQuery, TBody, TResponse extends HttpResult = HttpResult> = (
+  req: EnhancedRequest<TParams, TBody, TQuery>,
 ) => Promise<TResponse> | TResponse;
 
 /**
@@ -238,15 +233,19 @@ export function handle<
   TQuery extends JSONSchema | undefined = undefined,
   TBody extends JSONSchema | ContentTypeSchemasWrapper | undefined = undefined,
   THeaders extends JSONSchema | undefined = undefined,
-  TResponse extends ResponseSchemas | undefined = undefined
+  TResponse extends ResponseSchemas | undefined = undefined,
 >(
   config: HandleConfig<TParams, TQuery, TBody, THeaders, TResponse>,
   handler: SchemaHandler<
     TParams extends JSONSchema ? InferSchema<TParams> : Record<string, string>,
     TQuery extends JSONSchema ? InferSchema<TQuery> : Record<string, string>,
-    TBody extends ContentTypeSchemasWrapper<infer S> ? InferContentTypeBody<S> : TBody extends JSONSchema ? InferSchema<TBody> : unknown,
+    TBody extends ContentTypeSchemasWrapper<infer S>
+      ? InferContentTypeBody<S>
+      : TBody extends JSONSchema
+        ? InferSchema<TBody>
+        : unknown,
     TResponse extends ResponseSchemas ? ResponseToHttpResult<TResponse> : HttpResult
-  >
+  >,
 ): RequestHandler {
   // Pre-compile validators at module load time
   const validators: {
@@ -314,18 +313,20 @@ export function handle<
     } else if (validators.bodyByContentType) {
       // Get Content-Type header and normalize it (remove charset, etc.)
       const contentType = req.headers?.['content-type']?.split(';')[0]?.trim().toLocaleLowerCase();
-      
+
       const supportedTypes = Object.keys(validators.bodyByContentType);
 
       if (!contentType) {
         // No Content-Type header provided but body schema requires it
         validationErrors.push({
           field: 'body',
-          errors: [{
-            path: '/',
-            message: `Content-Type header is required. Supported: ${supportedTypes.join(', ')}`,
-            keyword: 'contentType',
-          }],
+          errors: [
+            {
+              path: '/',
+              message: `Content-Type header is required. Supported: ${supportedTypes.join(', ')}`,
+              keyword: 'contentType',
+            },
+          ],
         });
       } else {
         const bodyValidator = validators.bodyByContentType[contentType];
@@ -341,11 +342,13 @@ export function handle<
           // Content-Type provided but no matching validator - return 400
           validationErrors.push({
             field: 'body',
-            errors: [{
-              path: '/',
-              message: `Unsupported Content-Type: ${contentType}. Supported: ${supportedTypes.join(', ')}`,
-              keyword: 'contentType',
-            }],
+            errors: [
+              {
+                path: '/',
+                message: `Unsupported Content-Type: ${contentType}. Supported: ${supportedTypes.join(', ')}`,
+                keyword: 'contentType',
+              },
+            ],
           });
         }
       }
@@ -370,11 +373,16 @@ export function handle<
     }
 
     // Call the actual handler
-    return handler(req as EnhancedRequest<
-      TParams extends JSONSchema ? InferSchema<TParams> : Record<string, string>,
-      TBody extends ContentTypeSchemasWrapper<infer S> ? InferContentTypeBody<S> : TBody extends JSONSchema ? InferSchema<TBody> : unknown,
-      TQuery extends JSONSchema ? InferSchema<TQuery> : Record<string, string>
-    >);
+    return handler(
+      req as EnhancedRequest<
+        TParams extends JSONSchema ? InferSchema<TParams> : Record<string, string>,
+        TBody extends ContentTypeSchemasWrapper<infer S>
+          ? InferContentTypeBody<S>
+          : TBody extends JSONSchema
+            ? InferSchema<TBody>
+            : unknown,
+        TQuery extends JSONSchema ? InferSchema<TQuery> : Record<string, string>
+      >,
+    );
   };
 }
-

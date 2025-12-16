@@ -21,33 +21,33 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 ## Features
 
 <CardGrid stagger>
-	<Card title="File-System Based Routing" icon="open-book">
-		Your directory structure *is* your API structure. Drop your route files and go - no setup required.
-	</Card>
-	<Card title="Type-Safe" icon="approve-check">
-		End-to-end TypeScript support with full type inference for params, queries, bodies, and responses.
-	</Card>
-	<Card title="Zero Config" icon="rocket">
-		No configuration files needed. Convention over configuration means you can start building immediately.
-	</Card>
-	<Card title="Simple API" icon="puzzle">
-		Intuitive request/response helpers like `json()`, `ok()`, `notFound()`, and more.
-	</Card>
-	<Card title="Hot Reload" icon="random">
-		Automatic route reloading in development mode for a smooth developer experience.
-	</Card>
-	<Card title="Lightweight" icon="star">
-		Minimal dependencies, built on Node.js HTTP. Fast and efficient by design.
-	</Card>
-	<Card title="Dynamic Routes" icon="setting">
-		First-class support for path parameters using the `$` prefix convention (e.g., `$id`, `$slug`).
-	</Card>
-	<Card title="Streaming Support" icon="forward-slash">
-		Built-in support for streaming responses for real-time data and Server-Sent Events.
-	</Card>
-	<Card title="HTTPS Support" icon="seti:lock">
-		Built-in HTTPS support for secure connections.
-	</Card>
+  <Card title="File-System Based Routing" icon="open-book">
+    Your directory structure *is* your API structure. Drop your route files and go - no setup required.
+  </Card>
+  <Card title="Type-Safe" icon="approve-check">
+    End-to-end TypeScript support with full type inference for params, queries, bodies, and responses.
+  </Card>
+  <Card title="Zero Config" icon="rocket">
+    No configuration files needed. Convention over configuration means you can start building immediately.
+  </Card>
+  <Card title="Simple API" icon="puzzle">
+    Intuitive request/response helpers like `json()`, `ok()`, `notFound()`, and more.
+  </Card>
+  <Card title="Hot Reload" icon="random">
+    Automatic route reloading in development mode for a smooth developer experience.
+  </Card>
+  <Card title="Lightweight" icon="star">
+    Minimal dependencies, built on Node.js HTTP. Fast and efficient by design.
+  </Card>
+  <Card title="Dynamic Routes" icon="setting">
+    First-class support for path parameters using the `$` prefix convention (e.g., `$id`, `$slug`).
+  </Card>
+  <Card title="Streaming Support" icon="forward-slash">
+    Built-in support for streaming responses for real-time data and Server-Sent Events.
+  </Card>
+  <Card title="HTTPS Support" icon="seti:lock">
+    Built-in HTTPS support for secure connections.
+  </Card>
 </CardGrid>
 
 ## Quick Start
@@ -67,7 +67,7 @@ import { json, type RequestHandler } from '@buildxn/http';
 const handler: RequestHandler = () => {
   return json({
     message: 'Hello, World!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
