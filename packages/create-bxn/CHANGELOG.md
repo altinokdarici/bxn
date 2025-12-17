@@ -1,5 +1,11 @@
 # create-bxn
 
+## 0.0.7
+
+### Patch Changes
+
+- [`9771c42`](https://github.com/altinokdarici/bxn/commit/9771c423f863b7a7fee3c562384de86c479c05f4) Thanks [@altinokdarici](https://github.com/altinokdarici)! - fix: rename "bxn http" to "bxn"
+
 ## 0.0.6
 
 ### Patch Changes
