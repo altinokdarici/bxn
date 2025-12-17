@@ -1,9 +1,9 @@
 ---
 title: File-System Routing
-description: Learn how bxn http automatically maps your file structure to API routes
+description: Learn how bxn automatically maps your file structure to API routes
 ---
 
-One of bxn http's core features is **file-system based routing** — your directory structure automatically becomes your API structure. No configuration required.
+One of bxn's core features is **file-system based routing** — your directory structure automatically becomes your API structure. No configuration required.
 
 ## Basic Routing
 

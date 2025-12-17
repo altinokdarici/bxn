@@ -13,7 +13,7 @@ export interface StartOptions {
 }
 
 export async function start({ port, routes, sslKey, sslCert, watch }: StartOptions) {
-  p.intro('BXN HTTP');
+  p.intro('BXN');
 
   // Show watch mode indicator if running under Node's --watch
   if (watch) {

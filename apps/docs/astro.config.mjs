@@ -8,7 +8,7 @@ export default defineConfig({
   base: '/bxn',
   integrations: [
     starlight({
-      title: 'bxn http',
+      title: 'bxn',
       logo: {
         src: './src/assets/logo.svg',
       },

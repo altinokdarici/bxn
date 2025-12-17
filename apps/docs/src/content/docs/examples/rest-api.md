@@ -1,9 +1,9 @@
 ---
 title: REST API Example
-description: Complete example of building a REST API with bxn http
+description: Complete example of building a REST API with bxn
 ---
 
-This example demonstrates building a complete CRUD REST API for managing blog posts with bxn http.
+This example demonstrates building a complete CRUD REST API for managing blog posts with bxn.
 
 ## Project Structure
 

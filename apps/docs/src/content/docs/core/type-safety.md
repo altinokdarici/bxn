@@ -1,9 +1,9 @@
 ---
 title: Type Safety
-description: End-to-end type safety for your bxn http APIs
+description: End-to-end type safety for your bxn APIs
 ---
 
-bxn http provides **full TypeScript support** with end-to-end type safety for all aspects of your API — from request parameters to response bodies.
+bxn provides **full TypeScript support** with end-to-end type safety for all aspects of your API — from request parameters to response bodies.
 
 ## RequestHandler Type
 
@@ -89,7 +89,7 @@ const handler: RequestHandler<{}, any, Body> = (req) => {
 
 ## Type-Safe Responses
 
-This is where bxn http really shines! Define **all possible response types** in your handler signature:
+This is where bxn really shines! Define **all possible response types** in your handler signature:
 
 ```typescript
 import {
@@ -134,7 +134,7 @@ export default handler;
 
 ## Response Type Helpers
 
-bxn http provides type helpers for all HTTP responses:
+bxn provides type helpers for all HTTP responses:
 
 ```typescript
 import type {

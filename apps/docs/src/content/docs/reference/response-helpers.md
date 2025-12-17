@@ -3,7 +3,7 @@ title: Response Helpers
 description: Complete reference for all bxn http response helpers
 ---
 
-bxn http provides built-in helper functions for creating HTTP responses with full type safety.
+bxn provides built-in helper functions for creating HTTP responses with full type safety.
 
 ## json()
 

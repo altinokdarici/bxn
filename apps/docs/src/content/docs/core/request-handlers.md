@@ -1,9 +1,9 @@
 ---
 title: Request Handlers
-description: Learn how to create and work with request handlers in bxn http
+description: Learn how to create and work with request handlers in bxn
 ---
 
-Request handlers are the core building blocks of your bxn http API. Each route file exports a default handler function that processes incoming requests and returns responses.
+Request handlers are the core building blocks of your bxn API. Each route file exports a default handler function that processes incoming requests and returns responses.
 
 ## Basic Handler
 

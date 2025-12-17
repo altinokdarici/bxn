@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bxn http start --watch",
-    "start": "bxn http start",
+    "dev": "bxn start --watch",
+    "start": "bxn start",
     "build": "tsc"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 # create-bxn
 
-Scaffolding tool for bxn HTTP projects.
+Scaffolding tool for bxn projects.
 
 ## Usage
 

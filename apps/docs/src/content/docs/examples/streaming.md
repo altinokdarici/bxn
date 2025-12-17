@@ -1,9 +1,9 @@
 ---
 title: Streaming Example
-description: Learn how to implement streaming responses with bxn http
+description: Learn how to implement streaming responses with bxn
 ---
 
-bxn http has first-class support for streaming responses, perfect for Server-Sent Events (SSE), real-time data feeds, and large file transfers.
+bxn has first-class support for streaming responses, perfect for Server-Sent Events (SSE), real-time data feeds, and large file transfers.
 
 ## Server-Sent Events (SSE)
 
