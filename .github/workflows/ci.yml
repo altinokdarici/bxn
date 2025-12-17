@@ -26,6 +26,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Check for changeset
+        if: github.event_name == 'pull_request'
+        run: pnpm changeset status --since=origin/${{ github.base_ref }}
+
       - name: Check formatting
         run: pnpm format:check
 
