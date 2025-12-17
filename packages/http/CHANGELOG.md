@@ -1,5 +1,11 @@
 # @buildxn/http
 
+## 0.1.0
+
+### Minor Changes
+
+- [`04adce4`](https://github.com/altinokdarici/bxn/commit/04adce458e6182b52844c93f5f09c22f08fb7310) Thanks [@altinokdarici](https://github.com/altinokdarici)! - Add array query parameter support, response helpers, type aliases, handle() function with JSON Schema validation using AJV, StatusCode enum, and content-type based body schemas
+
 ## 0.0.4
 
 ### Patch Changes

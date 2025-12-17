@@ -1,5 +1,11 @@
 # bxn
 
+## 0.1.0
+
+### Minor Changes
+
+- [`04adce4`](https://github.com/altinokdarici/bxn/commit/04adce458e6182b52844c93f5f09c22f08fb7310) Thanks [@altinokdarici](https://github.com/altinokdarici)! - Rename CLI command from 'http' to 'start'
+
 ## 0.0.3
 
 ### Patch Changes
