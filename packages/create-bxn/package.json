@@ -2,6 +2,11 @@
   "name": "create-bxn",
   "version": "0.0.7",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/altinokdarici/bxn",
+    "directory": "packages/create-bxn"
+  },
   "files": [
     "dist",
     "templates"
