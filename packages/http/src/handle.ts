@@ -228,6 +228,7 @@ function formatErrors(errors: ErrorObject[] | null | undefined): ValidationError
  * });
  * ```
  */
+export function handle(handler: RequestHandler): RequestHandler;
 export function handle<
   TParams extends JSONSchema | undefined = undefined,
   TQuery extends JSONSchema | undefined = undefined,
@@ -246,7 +247,33 @@ export function handle<
         : unknown,
     TResponse extends ResponseSchemas ? ResponseToHttpResult<TResponse> : HttpResult
   >,
+): RequestHandler;
+export function handle<
+  TParams extends JSONSchema | undefined = undefined,
+  TQuery extends JSONSchema | undefined = undefined,
+  TBody extends JSONSchema | ContentTypeSchemasWrapper | undefined = undefined,
+  THeaders extends JSONSchema | undefined = undefined,
+  TResponse extends ResponseSchemas | undefined = undefined,
+>(
+  configOrHandler: HandleConfig<TParams, TQuery, TBody, THeaders, TResponse> | RequestHandler,
+  maybeHandler?: SchemaHandler<
+    TParams extends JSONSchema ? InferSchema<TParams> : Record<string, string>,
+    TQuery extends JSONSchema ? InferSchema<TQuery> : QueryParams,
+    TBody extends ContentTypeSchemasWrapper<infer S>
+      ? InferContentTypeBody<S>
+      : TBody extends JSONSchema
+        ? InferSchema<TBody>
+        : unknown,
+    TResponse extends ResponseSchemas ? ResponseToHttpResult<TResponse> : HttpResult
+  >,
 ): RequestHandler {
+  const config = typeof configOrHandler === 'function' ? {} : configOrHandler;
+  const handler = typeof configOrHandler === 'function' ? configOrHandler : maybeHandler;
+
+  if (!handler) {
+    throw new Error('Handler function must be provided');
+  }
+
   // Pre-compile validators at module load time
   const validators: {
     params?: ValidateFunction;
