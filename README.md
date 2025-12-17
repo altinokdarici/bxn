@@ -446,7 +446,7 @@ We welcome contributions! Here's how you can help:
 
 ```bash
 # Clone the repo
-git clone https://github.com/buildxn/http.git
+git clone https://github.com/altinokdarici.git
 cd http
 
 # Install dependencies
@@ -470,6 +470,6 @@ MIT © [BuildXN]
 
 **Built with ❤️ using TypeScript and Node.js**
 
-[Report Bug](https://github.com/buildxn/http/issues) • [Request Feature](https://github.com/buildxn/http/issues)
+[Report Bug](https://github.com/altinokdarici/issues) • [Request Feature](https://github.com/altinokdarici/issues)
 
 </div>

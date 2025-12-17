@@ -12,9 +12,9 @@ export default defineConfig({
       logo: {
         src: './src/assets/logo.svg',
       },
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/buildxn/bxn' }],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/altinokdarici/bxn' }],
       editLink: {
-        baseUrl: 'https://github.com/buildxn/bxn/edit/main/apps/docs/',
+        baseUrl: 'https://github.com/altinokdarici/bxn/edit/main/apps/docs/',
       },
       components: {
         Footer: './src/components/Footer.astro',
