@@ -26,19 +26,19 @@ const ErrorSchema = Type.Object({
 });
 
 // GET /authors/:authorId - Get author details
-export default handle(
-  {
+export default handle({
+  schema: {
     params: ParamsSchema,
     response: {
       [StatusCode.Ok]: { body: AuthorSchema },
       [StatusCode.NotFound]: { body: ErrorSchema },
     },
   },
-  (req) => {
+  handler: (req) => {
     const author = db.authors.get(req.params.authorId);
     if (!author) {
       return notFound({ error: 'Author not found' });
     }
     return json(author);
   },
-);
+});

@@ -16,17 +16,23 @@
     ".": {
       "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
+    },
+    "./middleware": {
+      "import": "./lib/middleware/index.js",
+      "types": "./lib/middleware/index.d.ts"
     }
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "test": "node --test"
   },
   "dependencies": {
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"
   },
   "devDependencies": {
+    "@sinclair/typebox": "^0.34.41",
     "@types/node": "^24.0.0",
     "typescript": "^5.0.0"
   }

@@ -1,25 +1,68 @@
-import type { IncomingMessage } from 'node:http';
-import type { HttpResult } from './http-result.ts';
+import type { HttpMethod } from './http-methods.ts';
+import type { StatusCode } from './status-code.ts';
 
-/** Default query type supporting both single values and arrays */
-export type QueryParams = Record<string, string | string[]>;
+// ============================================
+// Base types
+// ============================================
 
-export interface EnhancedRequest<
-  Params = Record<string, string>,
-  RequestBody = unknown,
-  Query = QueryParams,
-> extends IncomingMessage {
-  /** URL path params */
-  params: Params;
-  /** Parsed query string (supports arrays for repeated keys) */
-  query: Query;
-  /** Parsed body */
-  body: RequestBody;
-}
+type Params = Record<string, string>;
+type Query = Record<string, string | string[]>;
+export type Headers = Record<string, string | string[]>;
 
-export type RequestHandler<
-  Params = Record<string, string>,
-  Result extends HttpResult = HttpResult,
-  RequestBody = unknown,
-  Query = QueryParams,
-> = (req: EnhancedRequest<Params, RequestBody, Query>) => Promise<Result> | Result;
+// ============================================
+// Request schema & context
+// ============================================
+
+export type RequestSchema = {
+  params?: Params;
+  query?: Query;
+  body?: unknown;
+  headers?: Headers;
+};
+
+export type RequestContext<T extends RequestSchema = RequestSchema> = {
+  params: T['params'] extends Params ? T['params'] : Params;
+  query: T['query'] extends Query ? T['query'] : Query;
+  body: T['body'];
+  headers: T['headers'] extends Headers ? T['headers'] : Headers;
+} & Omit<T, 'params' | 'query' | 'body' | 'headers'>;
+
+export type HttpResult<TBody = unknown, TStatus extends StatusCode = StatusCode> = {
+  readonly statusCode: TStatus;
+  readonly body: TBody;
+  readonly headers?: Headers;
+};
+
+// ============================================
+// Endpoint schema
+// ============================================
+
+export type EndpointSchema<TResponse extends HttpResult = HttpResult> = RequestSchema & {
+  response?: TResponse;
+};
+
+// ============================================
+// Handler
+// ============================================
+
+export type Handler<T extends EndpointSchema = EndpointSchema> = (
+  ctx: RequestContext<T>,
+) => T['response'] extends HttpResult ? T['response'] | Promise<T['response']> : HttpResult | Promise<HttpResult>;
+
+// ============================================
+// Middleware — has next, can return early or continue
+// ============================================
+type Next<TResponse extends HttpResult = HttpResult, TRequestContext extends RequestContext = RequestContext> = (
+  ctx: TRequestContext,
+) => TResponse | Promise<TResponse>;
+
+export type Middleware<T extends EndpointSchema = EndpointSchema, TAdds extends object = object> = (
+  ctx: RequestContext<T>,
+  next: Next<T['response'] extends HttpResult ? T['response'] : HttpResult, RequestContext<T & TAdds>>,
+) => T['response'] extends HttpResult ? T['response'] | Promise<T['response']> : HttpResult | Promise<HttpResult>;
+
+// Before compilation — can be chain or single handler
+export type RouteDefinitions = Record<string, Partial<Record<HttpMethod, [...Middleware[], Handler] | Handler>>>;
+
+// After compilation — always single handler
+export type Routes = Record<string, Partial<Record<HttpMethod, Handler>>>;

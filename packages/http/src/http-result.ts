@@ -1,89 +1,16 @@
-import type { ServerResponse } from 'node:http';
-
-/**
- * HTTP status codes as a const object for type-safe usage.
- * Use with response schemas: `response: { [StatusCode.Ok]: Schema, [StatusCode.NotFound]: ErrorSchema }`
- */
-export const StatusCode = {
-  // 2xx Success
-  Ok: 200,
-  Created: 201,
-  Accepted: 202,
-  NoContent: 204,
-
-  // 3xx Redirection
-  MovedPermanently: 301,
-  Found: 302,
-  SeeOther: 303,
-  NotModified: 304,
-  TemporaryRedirect: 307,
-  PermanentRedirect: 308,
-
-  // 4xx Client Errors
-  BadRequest: 400,
-  Unauthorized: 401,
-  Forbidden: 403,
-  NotFound: 404,
-  MethodNotAllowed: 405,
-  Conflict: 409,
-  Gone: 410,
-  UnprocessableEntity: 422,
-  TooManyRequests: 429,
-
-  // 5xx Server Errors
-  InternalServerError: 500,
-  NotImplemented: 501,
-  BadGateway: 502,
-  ServiceUnavailable: 503,
-  GatewayTimeout: 504,
-} as const;
-
-/**
- * Type representing all known status codes.
- */
-export type StatusCode = (typeof StatusCode)[keyof typeof StatusCode];
-
-/**
- * Represents the result of an HTTP endpoint handler.
- * The generic type T represents the response body type for type safety.
- * The Status type parameter is used for compile-time checking of allowed responses.
- */
-export interface HttpResult<T = unknown, Status extends number = number> {
-  /**
-   * Executes the result, writing the response to the ServerResponse object.
-   */
-  execute(res: ServerResponse): Promise<void> | void;
-  /** Type marker for the response body (not present at runtime) */
-  readonly __type?: T;
-  /** Status code marker for compile-time checking (not present at runtime) */
-  readonly __status?: Status;
-}
-
-/**
- * Helper to write headers to the response.
- */
-function writeHeaders(res: ServerResponse, statusCode: number, headers: Record<string, string>): void {
-  res.statusCode = statusCode;
-  Object.entries(headers).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
-}
+import type { Headers, HttpResult } from './types.ts';
+import { StatusCode } from './status-code.ts';
 
 /**
  * Creates a JSON result.
  */
-function createJsonResult<T, S extends number>(
-  data: T,
-  statusCode: S,
-  headers: Record<string, string> = {},
-): HttpResult<T, S> {
+function createJsonResult<T, S extends StatusCode>(data: T, statusCode: S, headers: Headers = {}): HttpResult<T, S> {
   return {
-    execute(res: ServerResponse) {
-      writeHeaders(res, statusCode, {
-        'Content-Type': 'application/json',
-        ...headers,
-      });
-      res.end(JSON.stringify(data));
+    statusCode,
+    body: data,
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
     },
   };
 }
@@ -91,18 +18,17 @@ function createJsonResult<T, S extends number>(
 /**
  * Creates a text result.
  */
-function createTextResult<S extends number>(
-  text: string,
+function createTextResult<S extends StatusCode>(
+  body: string,
   statusCode: S,
-  headers: Record<string, string> = {},
+  headers: Headers = {},
 ): HttpResult<string, S> {
   return {
-    execute(res: ServerResponse) {
-      writeHeaders(res, statusCode, {
-        'Content-Type': 'text/plain',
-        ...headers,
-      });
-      res.end(text);
+    statusCode,
+    body,
+    headers: {
+      ...headers,
+      'Content-Type': 'text/plain',
     },
   };
 }
@@ -110,15 +36,11 @@ function createTextResult<S extends number>(
 /**
  * Creates a status-only result.
  */
-function createStatusResult<S extends number>(
-  statusCode: S,
-  headers: Record<string, string> = {},
-): HttpResult<void, S> {
+function createStatusResult<S extends StatusCode>(statusCode: S, headers: Headers = {}): HttpResult<void, S> {
   return {
-    execute(res: ServerResponse) {
-      writeHeaders(res, statusCode, headers);
-      res.end();
-    },
+    body: undefined,
+    statusCode,
+    headers,
   };
 }
 
@@ -205,22 +127,19 @@ export type Redirect = HttpResult<
   | typeof StatusCode.PermanentRedirect
 >;
 
-/**
- * Type alias for streaming response.
- */
-export type Stream = HttpResult<void, number>;
+export type StreamBody = ReadableStream<Uint8Array>;
 
 /**
  * Returns a 200 OK response with JSON data.
  */
-export function ok<T>(data: T, headers?: Record<string, string>): Ok<T> {
+export function ok<T>(data: T, headers?: Headers): Ok<T> {
   return createJsonResult(data, StatusCode.Ok, headers);
 }
 
 /**
  * Returns a 201 Created response with JSON data.
  */
-export function created<T>(data: T, headers?: Record<string, string>): Created<T> {
+export function created<T>(data: T, headers?: Headers): Created<T> {
   return createJsonResult(data, StatusCode.Created, headers);
 }
 
@@ -228,12 +147,12 @@ export function created<T>(data: T, headers?: Record<string, string>): Created<T
  * Returns a JSON response with a custom status code.
  * Defaults to 200 OK when no status code is provided.
  */
-export function json<T>(data: T, headers?: Record<string, string>): HttpResult<T, typeof StatusCode.Ok>;
-export function json<T, S extends number>(data: T, statusCode: S, headers?: Record<string, string>): HttpResult<T, S>;
-export function json<T, S extends number = typeof StatusCode.Ok>(
+export function json<T>(data: T, headers?: Headers): HttpResult<T, typeof StatusCode.Ok>;
+export function json<T, S extends StatusCode>(data: T, statusCode: S, headers?: Headers): HttpResult<T, S>;
+export function json<T, S extends StatusCode = typeof StatusCode.Ok>(
   data: T,
-  statusCodeOrHeaders?: S | Record<string, string>,
-  headers?: Record<string, string>,
+  statusCodeOrHeaders?: S | Headers,
+  headers?: Headers,
 ): HttpResult<T, S> {
   // Handle overloads
   if (typeof statusCodeOrHeaders === 'object') {
@@ -245,7 +164,7 @@ export function json<T, S extends number = typeof StatusCode.Ok>(
 /**
  * Returns a 200 OK response with plain text.
  */
-export function text(textContent: string, headers?: Record<string, string>): HttpResult<string, typeof StatusCode.Ok> {
+export function text(textContent: string, headers?: Headers): HttpResult<string, typeof StatusCode.Ok> {
   return createTextResult(textContent, StatusCode.Ok, headers);
 }
 
@@ -309,11 +228,11 @@ export function forbidden<T = void>(data?: T): Forbidden<T> {
 /**
  * Returns a 405 Method Not Allowed response.
  */
-export function methodNotAllowed<T = void>(data?: T): MethodNotAllowed<T> {
+export function methodNotAllowed<T = void>(data?: T, headers?: Headers): MethodNotAllowed<T> {
   if (data === undefined) {
-    return createStatusResult(StatusCode.MethodNotAllowed) as MethodNotAllowed<T>;
+    return createStatusResult(StatusCode.MethodNotAllowed, headers) as MethodNotAllowed<T>;
   }
-  return createJsonResult(data, StatusCode.MethodNotAllowed);
+  return createJsonResult(data, StatusCode.MethodNotAllowed, headers);
 }
 
 /**
@@ -386,19 +305,71 @@ export function redirect(
 /**
  * Returns a custom status code response.
  */
-export function status<S extends number>(statusCode: S, headers?: Record<string, string>): HttpResult<void, S> {
+export function status<S extends StatusCode>(statusCode: S, headers?: Headers): HttpResult<void, S> {
   return createStatusResult(statusCode, headers);
 }
 
-/**
- * Returns a streaming response.
- * The writer function receives the response object and has full control
- * over status code, headers, and streaming the body.
- */
-export function stream(writer: (res: ServerResponse) => Promise<void> | void): Stream {
+export function stream<S extends StatusCode>(
+  readable: StreamBody,
+  statusCode: S,
+  headers: Headers = {},
+): HttpResult<StreamBody, S> {
   return {
-    async execute(res: ServerResponse) {
-      await writer(res);
-    },
+    statusCode,
+    headers,
+    body: readable,
   };
+}
+
+type SSEMessage = {
+  data: unknown;
+  event?: string;
+  id?: string;
+  retry?: number;
+};
+
+type SSECleanup = () => void;
+type SSEWrite = (message: SSEMessage | unknown) => void;
+type SSEClose = () => void;
+
+export function sse(handler: (write: SSEWrite, close: SSEClose) => SSECleanup | void): HttpResult<StreamBody, 200> {
+  let cleanup: SSECleanup | void;
+  let controller: ReadableStreamDefaultController<Uint8Array>;
+  const encoder = new TextEncoder();
+
+  const readable = new ReadableStream<Uint8Array>({
+    start(ctrl) {
+      controller = ctrl;
+
+      const write: SSEWrite = (message) => {
+        let output = '';
+        if (typeof message === 'object' && message !== null && 'data' in message) {
+          const msg = message as SSEMessage;
+          if (msg.event) output += `event: ${msg.event}\n`;
+          if (msg.id) output += `id: ${msg.id}\n`;
+          if (msg.retry) output += `retry: ${msg.retry}\n`;
+          output += `data: ${JSON.stringify(msg.data)}\n\n`;
+        } else {
+          output = `data: ${JSON.stringify(message)}\n\n`;
+        }
+        controller.enqueue(encoder.encode(output));
+      };
+
+      const close: SSEClose = () => {
+        cleanup?.();
+        controller.close();
+      };
+
+      cleanup = handler(write, close);
+    },
+    cancel() {
+      cleanup?.();
+    },
+  });
+
+  return stream(readable, 200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
 }

@@ -1,32 +1,36 @@
 import type { IncomingMessage } from 'node:http';
 
+const parsersByContentType: Record<string, (data: Buffer<ArrayBufferLike>[]) => unknown> = {
+  'application/json': (data) => {
+    try {
+      return JSON.parse(Buffer.concat(data).toString());
+    } catch {
+      throw new Error('Invalid JSON body');
+    }
+  },
+  'application/x-www-form-urlencoded': (data) => {
+    return Object.fromEntries(new URLSearchParams(Buffer.concat(data).toString()));
+  },
+  'text/plain': (data) => Buffer.concat(data).toString(),
+};
+
 export async function parseBody(req: IncomingMessage): Promise<unknown> {
+  const method = req.method?.toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+    return undefined;
+  }
+
   const buffers: Buffer[] = [];
   for await (const chunk of req) {
     buffers.push(chunk);
   }
-  const data = Buffer.concat(buffers).toString();
-
-  if (!data) {
-    return undefined;
-  }
 
   const contentType = req.headers['content-type'] || '';
 
-  // Parse JSON
-  if (contentType.includes('application/json')) {
-    try {
-      return JSON.parse(data);
-    } catch {
-      return {};
-    }
+  const parser = parsersByContentType[contentType];
+  if (parser) {
+    return parser(buffers);
   }
 
-  // Parse URL-encoded form data
-  if (contentType.includes('application/x-www-form-urlencoded')) {
-    return Object.fromEntries(new URLSearchParams(data));
-  }
-
-  // Return raw string for other content types
-  return data;
+  return buffers;
 }

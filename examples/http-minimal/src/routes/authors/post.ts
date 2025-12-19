@@ -25,14 +25,14 @@ const AuthorSchema = Type.Object({
 
 // POST /authors - Create a new author
 // Returns the body as-is to verify removeAdditional behavior
-export default handle(
-  {
+export default handle({
+  schema: {
     body: BodySchema,
     response: {
       [StatusCode.Created]: { body: AuthorSchema },
     },
   },
-  (req) => {
+  handler: (req) => {
     // Log the body to see what AJV passed through
     console.log('Received body after validation:', JSON.stringify(req.body));
 
@@ -48,4 +48,4 @@ export default handle(
     db.authors.set(id, author);
     return json(author, StatusCode.Created);
   },
-);
+});

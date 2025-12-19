@@ -1,6 +1,4 @@
-import { json, type RequestHandler, type Ok } from '@buildxn/http';
-
-type Params = Record<string, never>;
+import { json, type Handler, type Ok } from '@buildxn/http';
 
 // Define response type
 interface HealthResponse {
@@ -13,10 +11,8 @@ interface HealthResponse {
   };
 }
 
-type Response = Ok<HealthResponse>;
-
 // GET / - API health check
-const handler: RequestHandler<Params, Response> = (): Response => {
+const handler: Handler<{ response: Ok<HealthResponse> }> = () => {
   return json({
     message: 'Blog API is running...',
     version: '1.0.0',

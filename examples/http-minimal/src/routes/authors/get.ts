@@ -1,5 +1,5 @@
 import { handle, json, StatusCode } from '@buildxn/http';
-import { Type, type Static } from '@sinclair/typebox';
+import { Type } from '@sinclair/typebox';
 import { db, type Author } from '../../db.ts';
 
 // Define query schema with TypeBox for validation
@@ -14,8 +14,6 @@ const QuerySchema = Type.Object({
   // Sort order
   order: Type.Optional(Type.Union([Type.Literal('asc'), Type.Literal('desc')], { default: 'asc' })),
 });
-
-type Query = Static<typeof QuerySchema>;
 
 // Response schema for documentation and type safety
 const AuthorSchema = Type.Object({
@@ -49,8 +47,8 @@ const ResponseSchema = Type.Object({
 //   GET /authors?search=jane
 //   GET /authors?id=1&id=2 (filter by multiple IDs)
 //   GET /authors?order=desc
-export default handle(
-  {
+export default handle({
+  schema: {
     query: QuerySchema,
     response: {
       [StatusCode.Ok]: {
@@ -58,8 +56,8 @@ export default handle(
       },
     },
   },
-  (req) => {
-    const { limit = 10, offset = 0, search, id, order = 'asc' } = req.query as Query;
+  handler: (req) => {
+    const { limit = 10, offset = 0, search, id, order = 'asc' } = req.query;
 
     let authors = Array.from(db.authors.values());
 
@@ -99,4 +97,4 @@ export default handle(
       },
     });
   },
-);
+});

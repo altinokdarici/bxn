@@ -1,7 +1,6 @@
-export { createServer, type Routes } from './create-server.ts';
-export type { RequestHandler, EnhancedRequest, QueryParams } from './types.ts';
+export { createServer } from './create-server.ts';
+export type { Handler, HttpResult, Routes, RouteDefinitions, Middleware } from './types.ts';
 export type {
-  HttpResult,
   Ok,
   Created,
   NotFound,
@@ -17,10 +16,9 @@ export type {
   TooManyRequests,
   ServiceUnavailable,
   Redirect,
-  Stream,
 } from './http-result.ts';
+export { StatusCode } from './status-code.ts';
 export {
-  StatusCode,
   ok,
   created,
   json,
@@ -40,8 +38,8 @@ export {
   redirect,
   status,
   stream,
+  sse,
 } from './http-result.ts';
 export { type HttpMethod, isHttpMethod } from './http-methods.ts';
-
-// Validation
-export { handle, contentType } from './handle.ts';
+export { compileRoutes } from './compile-routes.ts';
+export { handle } from './handle.ts';

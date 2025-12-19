@@ -26,19 +26,19 @@ const ResponseSchema = Type.Object({
 });
 
 // POST /test - Echo back the validated body to verify removeAdditional
-export default handle(
-  {
+export default handle({
+  schema: {
     body: BodySchema,
     headers: HeadersSchema,
     response: {
       [StatusCode.Ok]: { body: ResponseSchema },
     },
   },
-  (req) => {
+  handler: (req) => {
     // Echo back the body and the validated header
     return json({
       receivedBody: req.body,
       apiKey: req.headers['x-api-key'] as string,
     });
   },
-);
+});

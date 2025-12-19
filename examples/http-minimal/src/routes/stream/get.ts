@@ -1,42 +1,32 @@
-import { stream, type RequestHandler } from '@buildxn/http';
+import { handle, stream, StatusCode } from '@buildxn/http';
 
-type Params = Record<string, never>;
+export default handle({
+  handler: () => {
+    // Simulate generating file content in chunks
+    const encoder = new TextEncoder();
+    let chunkIndex = 0;
+    const chunks = [
+      'Line 1: This is the beginning of the file.\n',
+      'Line 2: Some more content here.\n',
+      'Line 3: Generated dynamically.\n',
+      'Line 4: No actual file on disk.\n',
+      'Line 5: End of file.\n',
+    ];
 
-// GET /stream - Server-Sent Events example
-const handler: RequestHandler<Params> = () => {
-  return stream(async (res) => {
-    // Set headers for Server-Sent Events
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
+    const readable = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (chunkIndex < chunks.length) {
+          controller.enqueue(encoder.encode(chunks[chunkIndex]));
+          chunkIndex++;
+        } else {
+          controller.close();
+        }
+      },
     });
 
-    let count = 0;
-
-    // Send a message every second for 10 seconds
-    const interval = setInterval(() => {
-      count++;
-
-      // SSE format: data: {message}\n\n
-      res.write(
-        `data: ${JSON.stringify({
-          message: `Event ${count}`,
-          timestamp: new Date().toISOString(),
-        })}\n\n`,
-      );
-
-      if (count >= 10) {
-        clearInterval(interval);
-        res.end();
-      }
-    }, 1000);
-
-    // Handle client disconnect
-    res.on('close', () => {
-      clearInterval(interval);
+    return stream(readable, StatusCode.Ok, {
+      'Content-Type': 'text/plain',
+      'Content-Disposition': 'attachment; filename="generated-file.txt"',
     });
-  });
-};
-
-export default handler;
+  },
+});

@@ -1,13 +1,13 @@
 import { URL } from 'node:url';
 import type { IncomingMessage } from 'node:http';
 import { parseBody } from './parse-body.ts';
-import type { EnhancedRequest } from './types.ts';
+import type { RequestContext } from './types.ts';
 
-export async function enhanceRequest(
+export async function createRequestContext(
   req: IncomingMessage,
   url: URL,
   params: Record<string, string> = {},
-): Promise<EnhancedRequest> {
+): Promise<RequestContext> {
   // Parse query parameters with array support
   // Single values: ?foo=bar -> { foo: 'bar' }
   // Multiple values: ?foo=a&foo=b -> { foo: ['a', 'b'] }
@@ -26,11 +26,12 @@ export async function enhanceRequest(
   // Parse request body if one exists
   const body = await parseBody(req);
 
-  // Enhance the request object with params, query, and body
-  const request = req as EnhancedRequest;
-  request.params = params;
-  request.query = query;
-  request.body = body;
+  const headers = req.headers as Record<string, string | string[]>;
 
-  return request;
+  return {
+    body,
+    headers,
+    params,
+    query,
+  };
 }

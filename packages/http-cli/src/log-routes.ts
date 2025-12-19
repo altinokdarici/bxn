@@ -1,8 +1,8 @@
 import * as p from '@clack/prompts';
-import type { Routes } from '@buildxn/http';
+import type { RouteDefinitions } from '@buildxn/http';
 
 // Log discovered routes in a nice format
-export function logRoutes(routes: Routes, routesPath?: string): void {
+export function logRoutes(routes: RouteDefinitions, routesPath?: string): void {
   const routeCount = Object.values(routes).reduce((sum, methods) => sum + Object.keys(methods).length, 0);
 
   if (routeCount === 0) {

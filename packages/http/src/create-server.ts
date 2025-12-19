@@ -2,13 +2,12 @@ import { Server } from 'node:http';
 import { Server as HttpsServer } from 'node:https';
 import type { ServerOptions as HttpsServerOptions } from 'node:https';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { RequestHandler } from './types.ts';
-import { enhanceRequest } from './enhance-request.ts';
+import type { Routes } from './types.ts';
+import { createRequestContext } from './create-request-context.ts';
 import { findMatchingRoute } from './find-matching-route.ts';
 import type { HttpMethod } from './http-methods.ts';
-
-// Routes are path-first: { '/path': { get: handler, post: handler } }
-export type Routes = Record<string, Partial<Record<HttpMethod, RequestHandler>>>;
+import { writeResponse } from './write-response.ts';
+import { internalServerError, methodNotAllowed, notFound } from './http-result.ts';
 
 export interface ServerOptions {
   /** HTTPS server options (key, cert, etc.). If provided, creates an HTTPS server */
@@ -26,35 +25,31 @@ export function createServer(routes: Routes = {}, options?: ServerOptions) {
       const match = findMatchingRoute(routePatterns, pathname);
 
       if (!match) {
-        res.statusCode = 404;
-        res.end();
-        return;
+        return writeResponse(res, notFound());
       }
 
       const handler = routes[match.pattern]?.[method as HttpMethod];
       const params = match.params;
 
       if (!handler) {
-        res.statusCode = 405;
-        res.setHeader('Allow', Object.keys(routes[match.pattern] || {}).join(', '));
-        res.end();
-        return;
+        return writeResponse(
+          res,
+          methodNotAllowed(undefined, { Allow: Object.keys(routes[match.pattern] || {}).join(', ') }),
+        );
       }
 
       // Enhance the request object with params, query, and body
-      const request = await enhanceRequest(req, url, params);
+      const request = await createRequestContext(req, url, params);
 
       // Execute handler and get HttpResult
       const result = await handler(request);
 
       // Execute the result to write to the response
-      await result.execute(res);
+      writeResponse(res, result);
     } catch (error) {
       console.error('Server error:', error);
       if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: 'Internal Server Error' }));
+        writeResponse(res, internalServerError());
       }
     }
   };

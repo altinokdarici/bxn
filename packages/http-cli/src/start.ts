@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import * as p from '@clack/prompts';
-import { createServer } from '@buildxn/http';
+import { compileRoutes, createServer } from '@buildxn/http';
 import { logRoutes } from './log-routes.ts';
 import { discoverRoutes } from './discover-routes.ts';
 
@@ -30,10 +30,12 @@ export async function start({ port, routes, sslKey, sslCert, watch }: StartOptio
     }
 
     // Discover routes for server
-    const routes = await discoverRoutes(routesPath);
+    const routeDefinitions = await discoverRoutes(routesPath);
 
-    // Log discovered routes
-    logRoutes(routes, routesPath);
+    // Log discovered route definitions
+    logRoutes(routeDefinitions, routesPath);
+
+    const routes = compileRoutes(routeDefinitions);
 
     // Prepare server options
     let httpsOptions = undefined;
