@@ -33,6 +33,7 @@ pnpm build        # Compile TypeScript
 ## Monorepo Structure
 
 This is a pnpm workspace monorepo with:
+
 - `packages/http` - Core HTTP framework (`@buildxn/http`)
 - `packages/http-cli` - CLI implementation for the `start` command (`@buildxn/http-cli`)
 - `packages/cli` - Main CLI entry point that bundles commands (`bxn`)
@@ -43,7 +44,9 @@ This is a pnpm workspace monorepo with:
 ## Architecture
 
 ### File-System Routing Convention
+
 Routes are discovered from the file system:
+
 - Directory names become path segments
 - `$` prefix creates dynamic parameters (`$authorId` → `:authorId`)
 - File names are HTTP methods (`get.ts`, `post.ts`, `put.ts`, `delete.ts`)
@@ -51,12 +54,14 @@ Routes are discovered from the file system:
 Example: `src/routes/authors/$authorId/get.ts` → `GET /authors/:authorId`
 
 ### Package Relationships
+
 1. **@buildxn/http** (`packages/http`): Core library with `createServer()`, response helpers (`json`, `ok`, `notFound`, etc.), and the `handle()` validation wrapper using AJV
 2. **@buildxn/http-cli** (`packages/http-cli`): Implements `start` command with route discovery (`discoverRoutes`) and server startup logic
 3. **bxn** (`packages/cli`): Entry point CLI that registers commands from `@buildxn/http-cli` using cac
 4. **create-bxn** (`packages/create-bxn`): Standalone scaffolding tool
 
 ### Key Files
+
 - `packages/http/src/create-server.ts` - Server factory, request handling, route matching
 - `packages/http/src/http-result.ts` - Response helpers and status codes
 - `packages/http/src/handle.ts` - Schema validation with AJV and TypeBox support
@@ -64,7 +69,9 @@ Example: `src/routes/authors/$authorId/get.ts` → `GET /authors/:authorId`
 - `packages/http-cli/src/start.ts` - CLI start command implementation
 
 ### Route Handler Pattern
+
 Handlers export a default function returning an `HttpResult`:
+
 ```typescript
 import { json, type RequestHandler } from '@buildxn/http';
 
@@ -76,18 +83,23 @@ export default handler;
 ```
 
 ### Validation Pattern
+
 Use `handle()` for runtime validation with TypeBox schemas:
+
 ```typescript
 import { handle, json, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
-export default handle({
-  params: Type.Object({ id: Type.String() }),
-  body: Type.Object({ name: Type.String() }),
-  response: {
-    [StatusCode.Ok]: { body: Type.Object({ id: Type.String() }) },
+export default handle(
+  {
+    params: Type.Object({ id: Type.String() }),
+    body: Type.Object({ name: Type.String() }),
+    response: {
+      [StatusCode.Ok]: { body: Type.Object({ id: Type.String() }) },
+    },
   },
-}, (req) => json({ id: req.params.id }));
+  (req) => json({ id: req.params.id }),
+);
 ```
 
 ## Requirements
