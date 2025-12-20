@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ bxn start
+# ⚡ bxn
 
 **A zero-config, file-system-driven HTTP framework for Node.js — type-safe, fast, and minimal.**
 
@@ -17,29 +17,12 @@ _Build type-safe REST APIs with zero configuration and convention over configura
 
 ---
 
-## ✨ Features
-
-- **🗂️ File-System Based Routing** - Your directory structure _is_ your API structure
-- **🔒 Type-Safe** - End-to-end TypeScript support with full type inference
-- **⚡ Zero Config** - Drop your route files and go - no setup required
-- **🎯 Simple API** - Intuitive request/response helpers (`json()`, `ok()`, `notFound()`, etc.)
-- **🔄 Hot Reload** - Automatic route reloading in development mode
-- **📦 Lightweight** - Minimal dependencies, built on Node.js HTTP
-- **🛣️ Dynamic Routes** - Support for path parameters (`:id`, `:slug`, etc.)
-- **📤 Streaming** - First-class support for streaming responses
-- **🔐 HTTPS Support** - Built-in SSL/TLS support for secure connections
-- **🔌 Middleware-Free** - Simple, predictable request handlers
-
 ## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-npm install @buildxn/http
-# or
-pnpm add @buildxn/http
-# or
-yarn add @buildxn/http
+pnpm create bxn@latest
 ```
 
 ### Create Your First API
@@ -62,7 +45,7 @@ export default handler;
 2. **Run the development server**:
 
 ```bash
-npx bxn start --watch
+pnpm dev
 ```
 
 3. **That's it!** Your API is running at `http://localhost:3000`
@@ -126,23 +109,6 @@ export default handle(
     if (!item) return notFound({ error: 'Not found' });
     return json({ id: req.params.id, name: req.body.name });
   },
-);
-```
-
-Content-type based validation:
-
-```typescript
-import { handle, json, contentType } from '@buildxn/http';
-import { Type } from '@sinclair/typebox';
-
-export default handle(
-  {
-    body: contentType({
-      'application/json': Type.Object({ data: Type.String() }),
-      'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
-    }),
-  },
-  (req) => json({ received: req.body }),
 );
 ```
 
@@ -281,29 +247,6 @@ bxn start --port 443 --key ./ssl/key.pem --cert ./ssl/cert.pem
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 ```
 
-**Using HTTPS programmatically:**
-
-```typescript
-import { createServer } from '@buildxn/http';
-import { readFileSync } from 'fs';
-
-const server = createServer(
-  {
-    '/': { get: async () => json({ message: 'Hello HTTPS!' }) },
-  },
-  {
-    https: {
-      key: readFileSync('./ssl/key.pem'),
-      cert: readFileSync('./ssl/cert.pem'),
-    },
-  },
-);
-
-server.listen(443, () => {
-  console.log('HTTPS server running on port 443');
-});
-```
-
 #### Watch Mode
 
 The `--watch` flag leverages Node.js native `--watch` for automatic server restarts:
@@ -332,89 +275,6 @@ The `bxn start` command selects the routes directory based on the `--watch` flag
 - **With `--routes`**: Uses the specified path (explicit override)
 
 This creates a clear, predictable contract with no filesystem guessing.
-
-## 🎯 Examples
-
-### Complete REST API Example
-
-```typescript
-// src/routes/posts/get.ts
-import { json, type RequestHandler } from '@buildxn/http';
-
-const handler: RequestHandler = () => {
-  const posts = db.posts.getAll();
-  return json(posts);
-};
-
-export default handler;
-```
-
-```typescript
-// src/routes/posts/post.ts
-import { created, badRequest, type RequestHandler, type Created, type BadRequest } from '@buildxn/http';
-
-type Body = { title: string; content: string };
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-}
-
-type Response = Created<Post> | BadRequest<{ error: string }>;
-
-const handler: RequestHandler<{}, Response, Body> = (req) => {
-  const { title, content } = req.body;
-
-  if (!title || !content) {
-    return badRequest({ error: 'Missing required fields' });
-  }
-
-  const post = db.posts.create({ title, content });
-  return created(post, `/posts/${post.id}`);
-};
-
-export default handler;
-```
-
-```typescript
-// src/routes/posts/$postId/get.ts
-import { json, notFound, type RequestHandler } from '@buildxn/http';
-
-type Params = { postId: string };
-
-const handler: RequestHandler<Params> = (req) => {
-  const post = db.posts.get(req.params.postId);
-
-  if (!post) {
-    return notFound({ error: 'Post not found' });
-  }
-
-  return json(post);
-};
-
-export default handler;
-```
-
-### Streaming Example
-
-```typescript
-// src/routes/stream/get.ts
-import { stream, type RequestHandler } from '@buildxn/http';
-import { Readable } from 'node:stream';
-
-const handler: RequestHandler = () => {
-  const readable = new Readable({
-    read() {
-      this.push(`data: ${Date.now()}\n\n`);
-    },
-  });
-
-  return stream(readable, 'text/event-stream');
-};
-
-export default handler;
-```
 
 ## 🔧 Configuration
 
@@ -446,7 +306,7 @@ We welcome contributions! Here's how you can help:
 
 ```bash
 # Clone the repo
-git clone https://github.com/altinokdarici.git
+git clone https://github.com/altinokdarici/bxn.git
 cd http
 
 # Install dependencies
@@ -459,17 +319,12 @@ pnpm build
 cd examples/http-minimal
 pnpm dev
 ```
-
-## 📝 License
-
-MIT © [BuildXN]
-
 ---
 
 <div align="center">
 
 **Built with ❤️ using TypeScript and Node.js**
 
-[Report Bug](https://github.com/altinokdarici/issues) • [Request Feature](https://github.com/altinokdarici/issues)
+[Report Bug](https://github.com/altinokdarici/bxn/issues) • [Request Feature](https://github.com/altinokdarici/bxn/issues)
 
 </div>
