@@ -1,4 +1,4 @@
-import { handle, json, StatusCode } from '@buildxn/http';
+import { route, json, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 import { db, type Author } from '../../db.ts';
 
@@ -47,16 +47,14 @@ const ResponseSchema = Type.Object({
 //   GET /authors?search=jane
 //   GET /authors?id=1&id=2 (filter by multiple IDs)
 //   GET /authors?order=desc
-export default handle({
-  schema: {
-    query: QuerySchema,
-    response: {
-      [StatusCode.Ok]: {
-        body: ResponseSchema,
-      },
+export default route()
+  .query(QuerySchema)
+  .response({
+    [StatusCode.Ok]: {
+      body: ResponseSchema,
     },
-  },
-  handler: (req) => {
+  })
+  .handle((req) => {
     const { limit = 10, offset = 0, search, id, order = 'asc' } = req.query;
 
     let authors = Array.from(db.authors.values());
@@ -90,11 +88,11 @@ export default handle({
     return json({
       data: paginatedAuthors,
       pagination: {
+        time: 0,
         total,
         limit,
         offset,
         hasMore: offset + limit < total,
       },
     });
-  },
-});
+  });

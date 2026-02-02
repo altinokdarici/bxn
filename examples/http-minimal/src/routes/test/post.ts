@@ -1,4 +1,4 @@
-import { handle, json, StatusCode } from '@buildxn/http';
+import { route, json, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 // With additionalProperties: false, AJV will remove extra fields
@@ -26,19 +26,16 @@ const ResponseSchema = Type.Object({
 });
 
 // POST /test - Echo back the validated body to verify removeAdditional
-export default handle({
-  schema: {
-    body: BodySchema,
-    headers: HeadersSchema,
-    response: {
-      [StatusCode.Ok]: { body: ResponseSchema },
-    },
-  },
-  handler: (req) => {
+export default route()
+  .body(BodySchema)
+  .headers(HeadersSchema)
+  .response({
+    [StatusCode.Ok]: { body: ResponseSchema },
+  })
+  .handle((req) => {
     // Echo back the body and the validated header
     return json({
       receivedBody: req.body,
       apiKey: req.headers['x-api-key'] as string,
     });
-  },
-});
+  });

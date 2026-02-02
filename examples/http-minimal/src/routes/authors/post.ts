@@ -1,4 +1,4 @@
-import { handle, json, StatusCode } from '@buildxn/http';
+import { route, json, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 import { db, type Author } from '../../db.ts';
 
@@ -25,14 +25,12 @@ const AuthorSchema = Type.Object({
 
 // POST /authors - Create a new author
 // Returns the body as-is to verify removeAdditional behavior
-export default handle({
-  schema: {
-    body: BodySchema,
-    response: {
-      [StatusCode.Created]: { body: AuthorSchema },
-    },
-  },
-  handler: (req) => {
+export default route()
+  .body(BodySchema)
+  .response({
+    [StatusCode.Created]: { body: AuthorSchema },
+  })
+  .handle((req) => {
     // Log the body to see what AJV passed through
     console.log('Received body after validation:', JSON.stringify(req.body));
 
@@ -47,5 +45,4 @@ export default handle({
 
     db.authors.set(id, author);
     return json(author, StatusCode.Created);
-  },
-});
+  });

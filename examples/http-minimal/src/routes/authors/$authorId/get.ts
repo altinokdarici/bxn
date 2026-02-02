@@ -1,4 +1,4 @@
-import { handle, json, notFound, StatusCode } from '@buildxn/http';
+import { route, json, notFound, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 import { db } from '../../../db.ts';
 
@@ -26,19 +26,16 @@ const ErrorSchema = Type.Object({
 });
 
 // GET /authors/:authorId - Get author details
-export default handle({
-  schema: {
-    params: ParamsSchema,
-    response: {
-      [StatusCode.Ok]: { body: AuthorSchema },
-      [StatusCode.NotFound]: { body: ErrorSchema },
-    },
-  },
-  handler: (req) => {
+export default route()
+  .params(ParamsSchema)
+  .response({
+    [StatusCode.Ok]: { body: AuthorSchema },
+    [StatusCode.NotFound]: { body: ErrorSchema },
+  })
+  .handle((req) => {
     const author = db.authors.get(req.params.authorId);
     if (!author) {
       return notFound({ error: 'Author not found' });
     }
     return json(author);
-  },
-});
+  });
