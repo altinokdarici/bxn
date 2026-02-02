@@ -19,6 +19,7 @@ jobs:
         with:
           path: apps/docs
           package-manager: pnpm
+          node-version-file: .nvmrc
 
   deploy:
     needs: build

@@ -53,13 +53,13 @@ importers:
       '@sinclair/typebox':
         specifier: ^0.34.30
         version: 0.34.48
+      bxn:
+        specifier: workspace:^
+        version: link:../../packages/cli
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
         version: 24.10.9
-      bxn:
-        specifier: workspace:^
-        version: link:../../packages/cli
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
