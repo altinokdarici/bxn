@@ -128,9 +128,7 @@ export class RouteBuilder<
    *   })
    * ```
    */
-  response<R extends TResponseSchema>(
-    schema: R,
-  ): RouteBuilder<TContext, TParams, TQuery, THeaders, TBody, R> {
+  response<R extends TResponseSchema>(schema: R): RouteBuilder<TContext, TParams, TQuery, THeaders, TBody, R> {
     return new RouteBuilder({
       schemas: { ...this.config.schemas, response: schema },
       hooks: this.config.hooks,

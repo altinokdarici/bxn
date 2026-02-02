@@ -219,11 +219,9 @@ describe('route()', () => {
       const authedRoute = route().before([authMiddleware]);
 
       // Use base route to create specific route
-      const [middleware, handler] = authedRoute
-        .params(Type.Object({ id: Type.String() }))
-        .handle((ctx) => {
-          return json({ userId: ctx.user.id, resourceId: ctx.params.id });
-        });
+      const [middleware, handler] = authedRoute.params(Type.Object({ id: Type.String() })).handle((ctx) => {
+        return json({ userId: ctx.user.id, resourceId: ctx.params.id });
+      });
 
       assert.ok(middleware);
       assert.ok(handler);
