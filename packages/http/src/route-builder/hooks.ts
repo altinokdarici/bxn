@@ -41,21 +41,3 @@ export function composeBeforeHooks<TContext extends object, TAdds extends object
     return dispatch(ctx as Record<string, unknown>);
   };
 }
-
-/**
- * Type helper to extract the context additions from a before hook.
- * This is useful for inferring what a hook adds to the context.
- */
-export type ExtractHookAdditions<T> = T extends BeforeHook<Record<string, unknown>, infer TAdds> ? TAdds : never;
-
-/**
- * Type helper to accumulate context additions from multiple hooks.
- */
-export type AccumulateHookAdditions<THooks extends UnknownHook[]> = THooks extends [
-  BeforeHook<Record<string, unknown>, infer TAdds1>,
-  ...infer TRest,
-]
-  ? TRest extends UnknownHook[]
-    ? TAdds1 & AccumulateHookAdditions<TRest>
-    : TAdds1
-  : object;

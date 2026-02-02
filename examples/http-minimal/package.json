@@ -10,10 +10,10 @@
   "exports": null,
   "dependencies": {
     "@buildxn/http": "workspace:^",
-    "@sinclair/typebox": "^0.34.30"
+    "@sinclair/typebox": "^0.34.30",
+    "bxn": "workspace:^"
   },
   "devDependencies": {
-    "bxn": "workspace:^",
     "@types/node": "^24.0.0",
     "typescript": "^5.0.0"
   }

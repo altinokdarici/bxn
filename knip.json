@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "project": ["**/*.{js,ts,mjs}"]
+    },
+    "packages/*": {
+      "project": ["src/**/*.ts!"]
+    },
+    "apps/*": {
+      "entry": ["src/**/*.{astro,ts,tsx}!"],
+      "project": ["src/**/*.{astro,ts,tsx}!"]
+    },
+    "examples/*": {
+      "entry": ["src/**/*.ts!"],
+      "project": ["src/**/*.ts!"]
+    }
+  },
+  "ignore": ["**/*.d.ts", "**/lib/**", "**/dist/**", "**/.astro/**"]
+}
