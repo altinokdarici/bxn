@@ -19,7 +19,6 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "commander": "^14.0.2",
     "@clack/prompts": "^1.0.0"
   },
   "devDependencies": {
