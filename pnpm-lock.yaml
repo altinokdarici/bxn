@@ -44,9 +44,6 @@ importers:
       astro:
         specifier: ^5.6.1
         version: 5.14.5(@types/node@24.7.2)(rollup@4.52.4)(tsx@4.20.6)(typescript@5.9.3)
-      sharp:
-        specifier: ^0.34.2
-        version: 0.34.4
       starlight-theme-obsidian:
         specifier: ^0.4.1
         version: 0.4.1(@astrojs/starlight@0.36.1(astro@5.14.5(@types/node@24.7.2)(rollup@4.52.4)(tsx@4.20.6)(typescript@5.9.3)))(astro@5.14.5(@types/node@24.7.2)(rollup@4.52.4)(tsx@4.20.6)(typescript@5.9.3))(starlight-site-graph@0.5.0(@astrojs/starlight@0.36.1(astro@5.14.5(@types/node@24.7.2)(rollup@4.52.4)(tsx@4.20.6)(typescript@5.9.3)))(astro@5.14.5(@types/node@24.7.2)(rollup@4.52.4)(tsx@4.20.6)(typescript@5.9.3)))
@@ -3661,7 +3658,8 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@img/colour@1.0.0': {}
+  '@img/colour@1.0.0':
+    optional: true
 
   '@img/sharp-darwin-arm64@0.34.4':
     optionalDependencies:
@@ -4739,7 +4737,8 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
-  detect-libc@2.1.2: {}
+  detect-libc@2.1.2:
+    optional: true
 
   deterministic-object-hash@2.0.2:
     dependencies:
@@ -6475,6 +6474,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.4
       '@img/sharp-win32-ia32': 0.34.4
       '@img/sharp-win32-x64': 0.34.4
+    optional: true
 
   shebang-command@2.0.0:
     dependencies:
