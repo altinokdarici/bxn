@@ -13,7 +13,7 @@
     "format:check": "prettier --check .",
     "knip": "knip",
     "test": "pnpm -r run test",
-    "check": "pnpm format:check && pnpm lint && pnpm knip && pnpm build && pnpm test"
+    "check": "pnpm format:check && pnpm build && pnpm lint && pnpm knip && pnpm test"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
