@@ -71,19 +71,20 @@ importers:
         version: 5.9.3
 
   packages/cli:
-    devDependencies:
-      '@buildxn/http-cli':
+    dependencies:
+      '@buildxn/http':
         specifier: workspace:^
-        version: link:../http-cli
-      '@types/node':
-        specifier: ^24.0.0
-        version: 24.7.2
+        version: link:../http
+      '@clack/prompts':
+        specifier: ^0.11.0
+        version: 0.11.0
       cac:
         specifier: ^6.7.14
         version: 6.7.14
-      commander:
-        specifier: ^14.0.2
-        version: 14.0.2
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.7.2
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)
@@ -122,28 +123,6 @@ importers:
       '@types/node':
         specifier: ^24.0.0
         version: 24.7.2
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/http-cli:
-    dependencies:
-      '@buildxn/http':
-        specifier: workspace:^
-        version: link:../http
-      '@clack/prompts':
-        specifier: ^0.11.0
-        version: 0.11.0
-    devDependencies:
-      '@types/node':
-        specifier: ^24.0.0
-        version: 24.7.2
-      cac:
-        specifier: ^6.7.14
-        version: 6.7.14
-      commander:
-        specifier: ^14.0.2
-        version: 14.0.2
       typescript:
         specifier: ^5.0.0
         version: 5.9.3

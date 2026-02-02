@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { registerHttpCommands } from '@buildxn/http-cli';
+import { registerHttpCommands } from './commands/register-http-commands.ts';
 import { cac } from 'cac';
 import { getVersion } from './get-version.ts';
 

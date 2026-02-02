@@ -15,13 +15,16 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@buildxn/http": "workspace:^",
+    "@clack/prompts": "^0.11.0",
+    "cac": "^6.7.14"
   },
   "devDependencies": {
-    "@buildxn/http-cli": "workspace:^",
     "@types/node": "^24.0.0",
-    "cac": "^6.7.14",
-    "commander": "^14.0.2",
     "tsup": "^8.5.0",
     "typescript": "^5.0.0"
   }

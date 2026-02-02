@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { discoverRoutes, type FileSystem, type Importer, type FileEntry } from './discover-routes.ts';
-import type { Handler, Middleware } from '@buildxn/http/lib/types';
+import { discoverRoutes, type FileSystem, type Importer, type FileEntry } from '../discover-routes.ts';
+import type { Handler, Middleware } from '@buildxn/http';
 
 function createMockFs(structure: Record<string, FileEntry[]>): FileSystem {
   return {
