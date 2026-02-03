@@ -51,42 +51,39 @@ export interface UpdatePostBody {
 
 ```typescript
 // src/routes/posts/get.ts
-import { json, type RequestHandler, type Ok } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import type { Post } from '../../types';
 import { db } from '../../db';
 
-type Query = {
-  page?: string;
-  limit?: string;
-  author?: string;
-};
+export default route()
+  .query(Type.Object({
+    page: Type.Optional(Type.String()),
+    limit: Type.Optional(Type.String()),
+    author: Type.Optional(Type.String()),
+  }))
+  .handle((req) => {
+    const page = parseInt(req.query.page || '1', 10);
+    const limit = parseInt(req.query.limit || '10', 10);
+    const author = req.query.author;
 
-type Response = Ok<{ posts: Post[]; total: number }>;
+    let posts = db.posts.getAll();
 
-const handler: RequestHandler<{}, Response, any, Query> = (req): Response => {
-  const page = parseInt(req.query.page || '1', 10);
-  const limit = parseInt(req.query.limit || '10', 10);
-  const author = req.query.author;
+    // Filter by author if specified
+    if (author) {
+      posts = posts.filter((post) => post.author === author);
+    }
 
-  let posts = db.posts.getAll();
+    // Pagination
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedPosts = posts.slice(start, end);
 
-  // Filter by author if specified
-  if (author) {
-    posts = posts.filter((post) => post.author === author);
-  }
-
-  // Pagination
-  const start = (page - 1) * limit;
-  const end = start + limit;
-  const paginatedPosts = posts.slice(start, end);
-
-  return json({
-    posts: paginatedPosts,
-    total: posts.length,
+    return json({
+      posts: paginatedPosts,
+      total: posts.length,
+    });
   });
-};
-
-export default handler;
 ```
 
 ## Create Post
@@ -95,53 +92,67 @@ export default handler;
 
 ```typescript
 // src/routes/posts/post.ts
-import { created, badRequest, type RequestHandler, type Created, type BadRequest } from '@buildxn/http';
+import { route, created, badRequest, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import type { Post, CreatePostBody } from '../../types';
 import { db } from '../../db';
 
-type Response = Created<Post> | BadRequest<{ errors: string[] }>;
+export default route()
+  .body(Type.Object({
+    title: Type.String(),
+    content: Type.String(),
+    author: Type.String(),
+  }))
+  .response({
+    [StatusCode.Created]: { body: Type.Object({
+      id: Type.String(),
+      title: Type.String(),
+      content: Type.String(),
+      author: Type.String(),
+      createdAt: Type.String(),
+      updatedAt: Type.String(),
+    })},
+    [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },
+  })
+  .handle((req) => {
+    const { title, content, author } = req.body;
+    const errors: string[] = [];
 
-const handler: RequestHandler<{}, Response, CreatePostBody> = (req): Response => {
-  const { title, content, author } = req.body;
-  const errors: string[] = [];
+    // Validation
+    if (!title || title.trim().length === 0) {
+      errors.push('Title is required');
+    }
 
-  // Validation
-  if (!title || title.trim().length === 0) {
-    errors.push('Title is required');
-  }
+    if (!content || content.trim().length === 0) {
+      errors.push('Content is required');
+    }
 
-  if (!content || content.trim().length === 0) {
-    errors.push('Content is required');
-  }
+    if (!author || author.trim().length === 0) {
+      errors.push('Author is required');
+    }
 
-  if (!author || author.trim().length === 0) {
-    errors.push('Author is required');
-  }
+    if (title && title.length > 200) {
+      errors.push('Title must be less than 200 characters');
+    }
 
-  if (title && title.length > 200) {
-    errors.push('Title must be less than 200 characters');
-  }
+    if (errors.length > 0) {
+      return badRequest({ errors });
+    }
 
-  if (errors.length > 0) {
-    return badRequest({ errors });
-  }
+    // Create post
+    const post: Post = {
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      content: content.trim(),
+      author: author.trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-  // Create post
-  const post: Post = {
-    id: crypto.randomUUID(),
-    title: title.trim(),
-    content: content.trim(),
-    author: author.trim(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+    db.posts.create(post);
 
-  db.posts.create(post);
-
-  return created(post, `/posts/${post.id}`);
-};
-
-export default handler;
+    return created(post, `/posts/${post.id}`);
+  });
 ```
 
 ## Get Single Post
@@ -150,27 +161,37 @@ export default handler;
 
 ```typescript
 // src/routes/posts/$postId/get.ts
-import { json, notFound, type RequestHandler, type Ok, type NotFound } from '@buildxn/http';
+import { route, json, notFound, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import type { Post } from '../../../types';
 import { db } from '../../../db';
 
-type Params = { postId: string };
+const PostSchema = Type.Object({
+  id: Type.String(),
+  title: Type.String(),
+  content: Type.String(),
+  author: Type.String(),
+  createdAt: Type.String(),
+  updatedAt: Type.String(),
+});
 
-type Response = Ok<Post> | NotFound<{ error: string }>;
+export default route()
+  .params(Type.Object({ postId: Type.String() }))
+  .response({
+    [StatusCode.Ok]: { body: PostSchema },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
+    const { postId } = req.params;
 
-const handler: RequestHandler<Params, Response> = (req): Response => {
-  const { postId } = req.params;
+    const post = db.posts.get(postId);
 
-  const post = db.posts.get(postId);
+    if (!post) {
+      return notFound({ error: 'Post not found' });
+    }
 
-  if (!post) {
-    return notFound({ error: 'Post not found' });
-  }
-
-  return json(post);
-};
-
-export default handler;
+    return json(post);
+  });
 ```
 
 ## Update Post
@@ -179,65 +200,72 @@ export default handler;
 
 ```typescript
 // src/routes/posts/$postId/put.ts
-import {
-  json,
-  notFound,
-  badRequest,
-  type RequestHandler,
-  type Ok,
-  type NotFound,
-  type BadRequest,
-} from '@buildxn/http';
+import { route, json, notFound, badRequest, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import type { Post, UpdatePostBody } from '../../../types';
 import { db } from '../../../db';
 
-type Params = { postId: string };
+const PostSchema = Type.Object({
+  id: Type.String(),
+  title: Type.String(),
+  content: Type.String(),
+  author: Type.String(),
+  createdAt: Type.String(),
+  updatedAt: Type.String(),
+});
 
-type Response = Ok<Post> | NotFound<{ error: string }> | BadRequest<{ errors: string[] }>;
+export default route()
+  .params(Type.Object({ postId: Type.String() }))
+  .body(Type.Object({
+    title: Type.Optional(Type.String()),
+    content: Type.Optional(Type.String()),
+  }))
+  .response({
+    [StatusCode.Ok]: { body: PostSchema },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+    [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },
+  })
+  .handle((req) => {
+    const { postId } = req.params;
+    const { title, content } = req.body;
 
-const handler: RequestHandler<Params, Response, UpdatePostBody> = (req): Response => {
-  const { postId } = req.params;
-  const { title, content } = req.body;
+    const post = db.posts.get(postId);
 
-  const post = db.posts.get(postId);
+    if (!post) {
+      return notFound({ error: 'Post not found' });
+    }
 
-  if (!post) {
-    return notFound({ error: 'Post not found' });
-  }
+    const errors: string[] = [];
 
-  const errors: string[] = [];
+    // Validation
+    if (title !== undefined && title.trim().length === 0) {
+      errors.push('Title cannot be empty');
+    }
 
-  // Validation
-  if (title !== undefined && title.trim().length === 0) {
-    errors.push('Title cannot be empty');
-  }
+    if (title && title.length > 200) {
+      errors.push('Title must be less than 200 characters');
+    }
 
-  if (title && title.length > 200) {
-    errors.push('Title must be less than 200 characters');
-  }
+    if (content !== undefined && content.trim().length === 0) {
+      errors.push('Content cannot be empty');
+    }
 
-  if (content !== undefined && content.trim().length === 0) {
-    errors.push('Content cannot be empty');
-  }
+    if (errors.length > 0) {
+      return badRequest({ errors });
+    }
 
-  if (errors.length > 0) {
-    return badRequest({ errors });
-  }
+    // Update post
+    const updatedPost: Post = {
+      ...post,
+      title: title ? title.trim() : post.title,
+      content: content ? content.trim() : post.content,
+      updatedAt: new Date().toISOString(),
+    };
 
-  // Update post
-  const updatedPost: Post = {
-    ...post,
-    title: title ? title.trim() : post.title,
-    content: content ? content.trim() : post.content,
-    updatedAt: new Date().toISOString(),
-  };
+    db.posts.update(postId, updatedPost);
 
-  db.posts.update(postId, updatedPost);
-
-  return json(updatedPost);
-};
-
-export default handler;
+    return json(updatedPost);
+  });
 ```
 
 ## Delete Post
@@ -246,26 +274,27 @@ export default handler;
 
 ```typescript
 // src/routes/posts/$postId/delete.ts
-import { noContent, notFound, type RequestHandler, type NoContent, type NotFound } from '@buildxn/http';
+import { route, noContent, notFound, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import { db } from '../../../db';
 
-type Params = { postId: string };
+export default route()
+  .params(Type.Object({ postId: Type.String() }))
+  .response({
+    [StatusCode.NoContent]: {},
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
+    const { postId } = req.params;
 
-type Response = NoContent | NotFound<{ error: string }>;
+    const deleted = db.posts.delete(postId);
 
-const handler: RequestHandler<Params, Response> = (req): Response => {
-  const { postId } = req.params;
+    if (!deleted) {
+      return notFound({ error: 'Post not found' });
+    }
 
-  const deleted = db.posts.delete(postId);
-
-  if (!deleted) {
-    return notFound({ error: 'Post not found' });
-  }
-
-  return noContent();
-};
-
-export default handler;
+    return noContent();
+  });
 ```
 
 ## Database Layer
