@@ -3,44 +3,42 @@ title: Schema Validation
 description: Runtime validation with JSON Schema and TypeBox
 ---
 
-Use `handle()` for runtime request validation with full type inference.
+Use `route()` for runtime request validation with full type inference.
 
 ## Basic Usage
 
 ```typescript
-import { handle, json, notFound, StatusCode } from '@buildxn/http';
+import { route, json, notFound, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
-export default handle(
-  {
-    params: Type.Object({ id: Type.String() }),
-    body: Type.Object({
-      name: Type.String(),
-      email: Type.String({ format: 'email' }),
-    }),
-    response: {
-      [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
-      [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
-    },
-  },
-  (req) => {
+export default route()
+  .params(Type.Object({ id: Type.String() }))
+  .body(Type.Object({
+    name: Type.String(),
+    email: Type.String({ format: 'email' }),
+  }))
+  .response({
+    [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
     // req.params and req.body are fully typed
     const item = db.get(req.params.id);
     if (!item) return notFound({ error: 'Not found' });
     return json({ id: req.params.id, name: req.body.name });
-  },
-);
+  });
 ```
 
-## Config Options
+## Builder Methods
 
-| Option     | Description                     |
+| Method     | Description                     |
 | ---------- | ------------------------------- |
-| `params`   | URL path parameters schema      |
-| `query`    | Query string parameters schema  |
-| `body`     | Request body schema             |
-| `headers`  | Request headers schema          |
-| `response` | Response schemas by status code |
+| `.params()`   | URL path parameters schema      |
+| `.query()`    | Query string parameters schema  |
+| `.body()`     | Request body schema             |
+| `.headers()`  | Request headers schema          |
+| `.response()` | Response schemas by status code |
+| `.handle()`   | Final handler function          |
 
 ## Validation Errors
 
@@ -63,18 +61,15 @@ Invalid requests return 400 with details:
 Different schemas for different content types:
 
 ```typescript
-import { handle, json, contentType } from '@buildxn/http';
+import { route, json, contentType } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
-export default handle(
-  {
-    body: contentType({
-      'application/json': Type.Object({ data: Type.String() }),
-      'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
-    }),
-  },
-  (req) => json({ received: req.body }),
-);
+export default route()
+  .body(contentType({
+    'application/json': Type.Object({ data: Type.String() }),
+    'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
+  }))
+  .handle((req) => json({ received: req.body }));
 ```
 
 Body type is inferred as a union of all content-type schemas.
@@ -82,35 +77,29 @@ Body type is inferred as a union of all content-type schemas.
 ## Headers Validation
 
 ```typescript
-export default handle(
-  {
-    headers: Type.Object({
-      'x-api-key': Type.String({ minLength: 1 }),
-      'x-request-id': Type.Optional(Type.String()),
-    }),
-  },
-  (req) => {
+export default route()
+  .headers(Type.Object({
+    'x-api-key': Type.String({ minLength: 1 }),
+    'x-request-id': Type.Optional(Type.String()),
+  }))
+  .handle((req) => {
     const apiKey = req.headers['x-api-key'];
     return json({ authenticated: true });
-  },
-);
+  });
 ```
 
 ## Query Parameters
 
 ```typescript
-export default handle(
-  {
-    query: Type.Object({
-      page: Type.Optional(Type.Number({ default: 1 })),
-      limit: Type.Optional(Type.Number({ default: 10 })),
-    }),
-  },
-  (req) => {
+export default route()
+  .query(Type.Object({
+    page: Type.Optional(Type.Number({ default: 1 })),
+    limit: Type.Optional(Type.Number({ default: 10 })),
+  }))
+  .handle((req) => {
     // query.page and query.limit are typed as numbers
     return json({ page: req.query.page, limit: req.query.limit });
-  },
-);
+  });
 ```
 
 ## AJV Configuration

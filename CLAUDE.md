@@ -30,15 +30,12 @@ cd examples/http-minimal && pnpm dev  # Run example
 ## Handler
 
 ```typescript
-import { handle, json } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
-export default handle({
-  schema: {
-    params: Type.Object({ id: Type.String() }),
-  },
-  handler: (ctx) => json({ id: ctx.params.id }),
-});
+export default route()
+  .params(Type.Object({ id: Type.String() }))
+  .handle((ctx) => json({ id: ctx.params.id }));
 ```
 
 ## Middleware

@@ -89,27 +89,24 @@ export default () => json({ message: 'Success' });
 
 ### Schema Validation
 
-Use `handle()` for runtime validation with TypeBox schemas:
+Use `route()` for runtime validation with TypeBox schemas:
 
 ```typescript
-import { handle, json, notFound, StatusCode } from '@buildxn/http';
+import { route, json, notFound, StatusCode } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
-export default handle(
-  {
-    params: Type.Object({ id: Type.String() }),
-    body: Type.Object({ name: Type.String(), email: Type.String({ format: 'email' }) }),
-    response: {
-      [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
-      [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
-    },
-  },
-  (req) => {
+export default route()
+  .params(Type.Object({ id: Type.String() }))
+  .body(Type.Object({ name: Type.String(), email: Type.String({ format: 'email' }) }))
+  .response({
+    [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
     const item = db.get(req.params.id);
     if (!item) return notFound({ error: 'Not found' });
     return json({ id: req.params.id, name: req.body.name });
-  },
-);
+  });
 ```
 
 ### Type-Safe Parameters & Responses
