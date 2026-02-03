@@ -337,10 +337,12 @@ export const getUser = route()
 
 // POST /users
 export const createUser = route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+    }),
+  )
   .response({
     [StatusCode.Created]: { body: UserSchema },
     [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },

@@ -42,10 +42,12 @@ import { Type } from '@sinclair/typebox';
 
 export default route()
   .params(Type.Object({ userId: Type.String() }))
-  .query(Type.Object({
-    include: Type.Optional(Type.String()),
-    page: Type.Optional(Type.String()),
-  }))
+  .query(
+    Type.Object({
+      include: Type.Optional(Type.String()),
+      page: Type.Optional(Type.String()),
+    }),
+  )
   .handle((req) => {
     const { userId } = req.params;
     const { include, page } = req.query; // ✅ Type-safe!
@@ -65,17 +67,19 @@ import { route, created, badRequest } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-    age: Type.Optional(Type.Integer()),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+      age: Type.Optional(Type.Integer()),
+    }),
+  )
   .handle((req) => {
     const { name, email, age } = req.body; // ✅ Type-safe!
 
-  if (!name || !email) {
-    return badRequest({ error: 'Missing required fields' });
-  }
+    if (!name || !email) {
+      return badRequest({ error: 'Missing required fields' });
+    }
 
     const user = db.users.create({ name, email, age });
     return created(user);
@@ -144,10 +148,12 @@ Created resources:
 
 ```typescript
 export default route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+    }),
+  )
   .response({
     [StatusCode.Created]: { body: UserSchema },
   })
@@ -185,10 +191,12 @@ Bad request responses:
 
 ```typescript
 export default route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+    }),
+  )
   .response({
     [StatusCode.Created]: { body: UserSchema },
     [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },
@@ -245,9 +253,11 @@ const UserSchema = Type.Object({
 // GET /users/:userId - Get user with optional includes
 export const getUser = route()
   .params(Type.Object({ userId: Type.String() }))
-  .query(Type.Object({
-    include: Type.Optional(Type.Union([Type.Literal('posts'), Type.Literal('comments')])),
-  }))
+  .query(
+    Type.Object({
+      include: Type.Optional(Type.Union([Type.Literal('posts'), Type.Literal('comments')])),
+    }),
+  )
   .response({
     [StatusCode.Ok]: { body: UserSchema },
     [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
@@ -268,10 +278,12 @@ export const getUser = route()
 // PUT /users/:userId - Update user
 export const updateUser = route()
   .params(Type.Object({ userId: Type.String() }))
-  .body(Type.Object({
-    name: Type.Optional(Type.String()),
-    email: Type.Optional(Type.String()),
-  }))
+  .body(
+    Type.Object({
+      name: Type.Optional(Type.String()),
+      email: Type.Optional(Type.String()),
+    }),
+  )
   .response({
     [StatusCode.Ok]: { body: UserSchema },
     [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },

@@ -87,10 +87,12 @@ import { route, created } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+    }),
+  )
   .handle((req) => {
     const user = db.users.create(req.body);
     return created(user, `/users/${user.id}`);
@@ -132,10 +134,12 @@ import { route, json, notFound } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .params(Type.Object({
-    userId: Type.String(),
-    postId: Type.String(),
-  }))
+  .params(
+    Type.Object({
+      userId: Type.String(),
+      postId: Type.String(),
+    }),
+  )
   .handle((req) => {
     const { userId, postId } = req.params;
     const post = db.posts.getByUserAndId(userId, postId);

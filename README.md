@@ -199,10 +199,12 @@ import { route, created } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+    }),
+  )
   .handle(async (req) => {
     const { name, email } = req.body; // ✅ Parsed and type-safe
 

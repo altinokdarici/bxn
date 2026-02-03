@@ -65,10 +65,12 @@ import { route, json } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String(),
+    }),
+  )
   .handle((req) => {
     const { name, email } = req.body; // Automatically parsed and type-safe
     return json({ name, email });
@@ -138,10 +140,12 @@ import { route, created, badRequest } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .body(Type.Object({
-    title: Type.String(),
-    content: Type.String(),
-  }))
+  .body(
+    Type.Object({
+      title: Type.String(),
+      content: Type.String(),
+    }),
+  )
   .handle((req) => {
     const { title, content } = req.body;
 
@@ -162,9 +166,11 @@ import { Type } from '@sinclair/typebox';
 
 export default route()
   .params(Type.Object({ userId: Type.String() }))
-  .query(Type.Object({
-    include: Type.Optional(Type.String()),
-  }))
+  .query(
+    Type.Object({
+      include: Type.Optional(Type.String()),
+    }),
+  )
   .handle((req) => {
     const { userId } = req.params;
     const { include } = req.query;

@@ -13,10 +13,12 @@ import { Type } from '@sinclair/typebox';
 
 export default route()
   .params(Type.Object({ id: Type.String() }))
-  .body(Type.Object({
-    name: Type.String(),
-    email: Type.String({ format: 'email' }),
-  }))
+  .body(
+    Type.Object({
+      name: Type.String(),
+      email: Type.String({ format: 'email' }),
+    }),
+  )
   .response({
     [StatusCode.Ok]: { body: Type.Object({ id: Type.String(), name: Type.String() }) },
     [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
@@ -31,8 +33,8 @@ export default route()
 
 ## Builder Methods
 
-| Method     | Description                     |
-| ---------- | ------------------------------- |
+| Method        | Description                     |
+| ------------- | ------------------------------- |
 | `.params()`   | URL path parameters schema      |
 | `.query()`    | Query string parameters schema  |
 | `.body()`     | Request body schema             |
@@ -65,10 +67,12 @@ import { route, json, contentType } from '@buildxn/http';
 import { Type } from '@sinclair/typebox';
 
 export default route()
-  .body(contentType({
-    'application/json': Type.Object({ data: Type.String() }),
-    'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
-  }))
+  .body(
+    contentType({
+      'application/json': Type.Object({ data: Type.String() }),
+      'application/x-www-form-urlencoded': Type.Object({ field: Type.String() }),
+    }),
+  )
   .handle((req) => json({ received: req.body }));
 ```
 
@@ -78,10 +82,12 @@ Body type is inferred as a union of all content-type schemas.
 
 ```typescript
 export default route()
-  .headers(Type.Object({
-    'x-api-key': Type.String({ minLength: 1 }),
-    'x-request-id': Type.Optional(Type.String()),
-  }))
+  .headers(
+    Type.Object({
+      'x-api-key': Type.String({ minLength: 1 }),
+      'x-request-id': Type.Optional(Type.String()),
+    }),
+  )
   .handle((req) => {
     const apiKey = req.headers['x-api-key'];
     return json({ authenticated: true });
@@ -92,10 +98,12 @@ export default route()
 
 ```typescript
 export default route()
-  .query(Type.Object({
-    page: Type.Optional(Type.Number({ default: 1 })),
-    limit: Type.Optional(Type.Number({ default: 10 })),
-  }))
+  .query(
+    Type.Object({
+      page: Type.Optional(Type.Number({ default: 1 })),
+      limit: Type.Optional(Type.Number({ default: 10 })),
+    }),
+  )
   .handle((req) => {
     // query.page and query.limit are typed as numbers
     return json({ page: req.query.page, limit: req.query.limit });

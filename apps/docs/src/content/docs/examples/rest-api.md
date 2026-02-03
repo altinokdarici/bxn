@@ -57,11 +57,13 @@ import type { Post } from '../../types';
 import { db } from '../../db';
 
 export default route()
-  .query(Type.Object({
-    page: Type.Optional(Type.String()),
-    limit: Type.Optional(Type.String()),
-    author: Type.Optional(Type.String()),
-  }))
+  .query(
+    Type.Object({
+      page: Type.Optional(Type.String()),
+      limit: Type.Optional(Type.String()),
+      author: Type.Optional(Type.String()),
+    }),
+  )
   .handle((req) => {
     const page = parseInt(req.query.page || '1', 10);
     const limit = parseInt(req.query.limit || '10', 10);
@@ -98,20 +100,24 @@ import type { Post, CreatePostBody } from '../../types';
 import { db } from '../../db';
 
 export default route()
-  .body(Type.Object({
-    title: Type.String(),
-    content: Type.String(),
-    author: Type.String(),
-  }))
-  .response({
-    [StatusCode.Created]: { body: Type.Object({
-      id: Type.String(),
+  .body(
+    Type.Object({
       title: Type.String(),
       content: Type.String(),
       author: Type.String(),
-      createdAt: Type.String(),
-      updatedAt: Type.String(),
-    })},
+    }),
+  )
+  .response({
+    [StatusCode.Created]: {
+      body: Type.Object({
+        id: Type.String(),
+        title: Type.String(),
+        content: Type.String(),
+        author: Type.String(),
+        createdAt: Type.String(),
+        updatedAt: Type.String(),
+      }),
+    },
     [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },
   })
   .handle((req) => {
@@ -216,10 +222,12 @@ const PostSchema = Type.Object({
 
 export default route()
   .params(Type.Object({ postId: Type.String() }))
-  .body(Type.Object({
-    title: Type.Optional(Type.String()),
-    content: Type.Optional(Type.String()),
-  }))
+  .body(
+    Type.Object({
+      title: Type.Optional(Type.String()),
+      content: Type.Optional(Type.String()),
+    }),
+  )
   .response({
     [StatusCode.Ok]: { body: PostSchema },
     [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
