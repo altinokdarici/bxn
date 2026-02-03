@@ -3,20 +3,19 @@ title: Request Handlers
 description: Learn how to create and work with request handlers in bxn
 ---
 
-Request handlers are the core building blocks of your bxn API. Each route file exports a default handler function that processes incoming requests and returns responses.
+Request handlers are the core building blocks of your bxn API. Each route file exports a default route using the `route()` builder that processes incoming requests and returns responses.
 
 ## Basic Handler
 
-All route files export a default handler function with the `RequestHandler` type:
+All route files use the `route()` builder to define handlers:
 
 ```typescript
-import type { RequestHandler } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-const handler: RequestHandler = (req) => {
+export default route().handle((req) => {
   // Process request and return response
-};
-
-export default handler;
+  return json({ message: 'Success' });
+});
 ```
 
 ## Request Object
@@ -26,7 +25,7 @@ The request object (`req`) provides access to all request data:
 ### Request Properties
 
 ```typescript
-const handler: RequestHandler = (req) => {
+export default route().handle((req) => {
   // Path parameters (from dynamic routes)
   const params = req.params; // { userId: '123' }
 
@@ -47,7 +46,9 @@ const handler: RequestHandler = (req) => {
 
   // Node.js IncomingMessage
   const raw = req.raw; // Access to underlying Node.js request
-};
+
+  return json({ method, path: url });
+});
 ```
 
 ## Request Body Parsing
@@ -60,12 +61,18 @@ Request bodies are **automatically parsed** based on the `Content-Type` header:
 - Other types → Available as raw string
 
 ```typescript
-type RequestBody = { name: string; email: string };
+import { route, json } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-const handler: RequestHandler<{}, any, RequestBody> = (req) => {
-  const { name, email } = req.body; // Automatically parsed and type-safe
-  // ...
-};
+export default route()
+  .body(Type.Object({
+    name: Type.String(),
+    email: Type.String(),
+  }))
+  .handle((req) => {
+    const { name, email } = req.body; // Automatically parsed and type-safe
+    return json({ name, email });
+  });
 ```
 
 ## Async Handlers
@@ -73,10 +80,15 @@ const handler: RequestHandler<{}, any, RequestBody> = (req) => {
 Handlers can be async functions for working with promises:
 
 ```typescript
-const handler: RequestHandler = async (req) => {
-  const user = await db.users.findById(req.params.userId);
-  return json(user);
-};
+import { route, json } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
+
+export default route()
+  .params(Type.Object({ userId: Type.String() }))
+  .handle(async (req) => {
+    const user = await db.users.findById(req.params.userId);
+    return json(user);
+  });
 ```
 
 ## Error Handling
@@ -84,21 +96,24 @@ const handler: RequestHandler = async (req) => {
 Handlers should return appropriate HTTP responses for errors:
 
 ```typescript
-import { json, notFound, badRequest, type RequestHandler } from '@buildxn/http';
+import { route, json, notFound, badRequest } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-const handler: RequestHandler = async (req) => {
-  try {
-    const user = await db.users.get(req.params.userId);
+export default route()
+  .params(Type.Object({ userId: Type.String() }))
+  .handle(async (req) => {
+    try {
+      const user = await db.users.get(req.params.userId);
 
-    if (!user) {
-      return notFound({ error: 'User not found' });
+      if (!user) {
+        return notFound({ error: 'User not found' });
+      }
+
+      return json(user);
+    } catch (error) {
+      return badRequest({ error: 'Invalid request' });
     }
-
-    return json(user);
-  } catch (error) {
-    return badRequest({ error: 'Invalid request' });
-  }
-};
+  });
 ```
 
 ## Handler Examples
@@ -106,82 +121,82 @@ const handler: RequestHandler = async (req) => {
 ### Simple GET Request
 
 ```typescript
-import { json, type RequestHandler } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   return json({
     message: 'Hello, World!',
     timestamp: new Date().toISOString(),
   });
-};
-
-export default handler;
+});
 ```
 
 ### POST with Body
 
 ```typescript
-import { created, badRequest, type RequestHandler } from '@buildxn/http';
+import { route, created, badRequest } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Body = { title: string; content: string };
+export default route()
+  .body(Type.Object({
+    title: Type.String(),
+    content: Type.String(),
+  }))
+  .handle((req) => {
+    const { title, content } = req.body;
 
-const handler: RequestHandler<{}, any, Body> = (req) => {
-  const { title, content } = req.body;
+    if (!title || !content) {
+      return badRequest({ error: 'Missing required fields' });
+    }
 
-  if (!title || !content) {
-    return badRequest({ error: 'Missing required fields' });
-  }
-
-  const post = db.posts.create({ title, content });
-  return created(post, `/posts/${post.id}`);
-};
-
-export default handler;
+    const post = db.posts.create({ title, content });
+    return created(post, `/posts/${post.id}`);
+  });
 ```
 
 ### Dynamic Route Handler
 
 ```typescript
-import { json, notFound, type RequestHandler } from '@buildxn/http';
+import { route, json, notFound } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Params = { userId: string };
-type Query = { include?: string };
+export default route()
+  .params(Type.Object({ userId: Type.String() }))
+  .query(Type.Object({
+    include: Type.Optional(Type.String()),
+  }))
+  .handle((req) => {
+    const { userId } = req.params;
+    const { include } = req.query;
 
-const handler: RequestHandler<Params> = (req) => {
-  const { userId } = req.params;
-  const { include } = req.query;
+    const user = db.users.get(userId);
 
-  const user = db.users.get(userId);
+    if (!user) {
+      return notFound({ error: 'User not found' });
+    }
 
-  if (!user) {
-    return notFound({ error: 'User not found' });
-  }
-
-  return json(user);
-};
-
-export default handler;
+    return json(user);
+  });
 ```
 
 ### DELETE Handler
 
 ```typescript
-import { noContent, notFound, type RequestHandler } from '@buildxn/http';
+import { route, noContent, notFound } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Params = { userId: string };
+export default route()
+  .params(Type.Object({ userId: Type.String() }))
+  .handle((req) => {
+    const { userId } = req.params;
+    const deleted = db.users.delete(userId);
 
-const handler: RequestHandler<Params> = (req) => {
-  const { userId } = req.params;
-  const deleted = db.users.delete(userId);
+    if (!deleted) {
+      return notFound({ error: 'User not found' });
+    }
 
-  if (!deleted) {
-    return notFound({ error: 'User not found' });
-  }
-
-  return noContent();
-};
-
-export default handler;
+    return noContent();
+  });
 ```
 
 ## Next Steps
