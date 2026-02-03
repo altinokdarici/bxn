@@ -242,32 +242,35 @@ import type {
 ### Usage Example
 
 ```typescript
-import {
-  json,
-  notFound,
-  badRequest,
-  type RequestHandler,
-  type Ok,
-  type NotFound,
-  type BadRequest,
-} from '@buildxn/http';
+import { route, json, notFound, badRequest, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Response = Ok<User> | NotFound<{ error: string }> | BadRequest<{ errors: string[] }>;
+const UserSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+});
 
-const handler: RequestHandler<Params, Response> = (req): Response => {
-  // TypeScript enforces that you can only return these types
-  if (validationErrors.length > 0) {
-    return badRequest({ errors: validationErrors });
-  }
+export default route()
+  .params(Type.Object({ userId: Type.String() }))
+  .response({
+    [StatusCode.Ok]: { body: UserSchema },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+    [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },
+  })
+  .handle((req) => {
+    // TypeScript enforces that you can only return these types
+    if (validationErrors.length > 0) {
+      return badRequest({ errors: validationErrors });
+    }
 
-  const user = db.users.get(req.params.userId);
+    const user = db.users.get(req.params.userId);
 
-  if (!user) {
-    return notFound({ error: 'User not found' });
-  }
+    if (!user) {
+      return notFound({ error: 'User not found' });
+    }
 
-  return json(user);
-};
+    return json(user);
+  });
 ```
 
 ## Custom Headers
@@ -306,59 +309,69 @@ return json(
 ## Complete Example
 
 ```typescript
-import {
-  json,
-  created,
-  noContent,
-  notFound,
-  badRequest,
-  type RequestHandler,
-  type Ok,
-  type Created,
-  type NoContent,
-  type NotFound,
-  type BadRequest,
-} from '@buildxn/http';
+import { route, json, created, noContent, notFound, badRequest, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
+
+const UserSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  email: Type.String(),
+});
 
 // GET /users/:userId
-type GetResponse = Ok<User> | NotFound<{ error: string }>;
+export const getUser = route()
+  .params(Type.Object({ userId: Type.String() }))
+  .response({
+    [StatusCode.Ok]: { body: UserSchema },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
+    const user = db.users.get(req.params.userId);
 
-const get: RequestHandler<Params, GetResponse> = (req) => {
-  const user = db.users.get(req.params.userId);
+    if (!user) {
+      return notFound({ error: 'User not found' });
+    }
 
-  if (!user) {
-    return notFound({ error: 'User not found' });
-  }
-
-  return json(user);
-};
+    return json(user);
+  });
 
 // POST /users
-type PostResponse = Created<User> | BadRequest<{ errors: string[] }>;
+export const createUser = route()
+  .body(Type.Object({
+    name: Type.String(),
+    email: Type.String(),
+  }))
+  .response({
+    [StatusCode.Created]: { body: UserSchema },
+    [StatusCode.BadRequest]: { body: Type.Object({ errors: Type.Array(Type.String()) }) },
+  })
+  .handle((req) => {
+    const errors = validate(req.body);
 
-const post: RequestHandler<{}, PostResponse, CreateUserBody> = (req) => {
-  const errors = validate(req.body);
+    if (errors.length > 0) {
+      return badRequest({ errors });
+    }
 
-  if (errors.length > 0) {
-    return badRequest({ errors });
-  }
-
-  const user = db.users.create(req.body);
-  return created(user, `/users/${user.id}`);
-};
+    const user = db.users.create(req.body);
+    return created(user, `/users/${user.id}`);
+  });
 
 // DELETE /users/:userId
-type DeleteResponse = NoContent | NotFound<{ error: string }>;
+export const deleteUser = route()
+  .params(Type.Object({ userId: Type.String() }))
+  .response({
+    [StatusCode.NoContent]: {},
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
+    const deleted = db.users.delete(req.params.userId);
 
-const del: RequestHandler<Params, DeleteResponse> = (req) => {
-  const deleted = db.users.delete(req.params.userId);
+    if (!deleted) {
+      return notFound({ error: 'User not found' });
+    }
 
-  if (!deleted) {
-    return notFound({ error: 'User not found' });
-  }
-
-  return noContent();
-};
+    return noContent();
+  });
 ```
 
 ## Next Steps

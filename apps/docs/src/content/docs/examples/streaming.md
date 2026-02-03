@@ -13,10 +13,10 @@ Create a real-time event stream that pushes updates to clients:
 
 ```typescript
 // src/routes/events/get.ts
-import { stream, type RequestHandler } from '@buildxn/http';
+import { route, stream } from '@buildxn/http';
 import { Readable } from 'node:stream';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   const readable = new Readable({
     read() {
       // This method is called when the client is ready for more data
@@ -42,20 +42,18 @@ const handler: RequestHandler = () => {
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
   });
-};
-
-export default handler;
+});
 ```
 
 ### Real-Time Updates Example
 
 ```typescript
 // src/routes/updates/get.ts
-import { stream, type RequestHandler } from '@buildxn/http';
+import { route, stream } from '@buildxn/http';
 import { Readable } from 'node:stream';
 import { eventBus } from '../../lib/events';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   const readable = new Readable({
     read() {},
   });
@@ -89,9 +87,7 @@ const handler: RequestHandler = () => {
     Connection: 'keep-alive',
     'X-Accel-Buffering': 'no', // Disable buffering in nginx
   });
-};
-
-export default handler;
+});
 ```
 
 ### Client Usage (Browser)
@@ -139,30 +135,29 @@ Stream large files efficiently:
 
 ```typescript
 // src/routes/files/$fileId/get.ts
-import { stream, notFound, type RequestHandler } from '@buildxn/http';
+import { route, stream, notFound } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-type Params = { fileId: string };
+export default route()
+  .params(Type.Object({ fileId: Type.String() }))
+  .handle((req) => {
+    const { fileId } = req.params;
+    const filePath = join('/uploads', fileId);
 
-const handler: RequestHandler<Params> = (req) => {
-  const { fileId } = req.params;
-  const filePath = join('/uploads', fileId);
+    if (!existsSync(filePath)) {
+      return notFound({ error: 'File not found' });
+    }
 
-  if (!existsSync(filePath)) {
-    return notFound({ error: 'File not found' });
-  }
+    const stats = statSync(filePath);
+    const fileStream = createReadStream(filePath);
 
-  const stats = statSync(filePath);
-  const fileStream = createReadStream(filePath);
-
-  return stream(fileStream, 'application/octet-stream', {
-    'Content-Length': stats.size.toString(),
-    'Content-Disposition': `attachment; filename="${fileId}"`,
+    return stream(fileStream, 'application/octet-stream', {
+      'Content-Length': stats.size.toString(),
+      'Content-Disposition': `attachment; filename="${fileId}"`,
+    });
   });
-};
-
-export default handler;
 ```
 
 ## CSV Streaming
@@ -171,11 +166,11 @@ Generate and stream CSV data:
 
 ```typescript
 // src/routes/export/users/get.ts
-import { stream, type RequestHandler } from '@buildxn/http';
+import { route, stream } from '@buildxn/http';
 import { Readable } from 'node:stream';
 import { db } from '../../../db';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   const users = db.users.getAll();
 
   const readable = new Readable({
@@ -197,9 +192,7 @@ const handler: RequestHandler = () => {
   return stream(readable, 'text/csv', {
     'Content-Disposition': 'attachment; filename="users.csv"',
   });
-};
-
-export default handler;
+});
 ```
 
 ## JSON Lines Streaming
@@ -208,11 +201,11 @@ Stream JSON objects line by line:
 
 ```typescript
 // src/routes/stream/logs/get.ts
-import { stream, type RequestHandler } from '@buildxn/http';
+import { route, stream } from '@buildxn/http';
 import { Readable } from 'node:stream';
 import { db } from '../../../db';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   const readable = new Readable({
     read() {},
   });
@@ -229,9 +222,7 @@ const handler: RequestHandler = () => {
   return stream(readable, 'application/x-ndjson', {
     'Cache-Control': 'no-cache',
   });
-};
-
-export default handler;
+});
 ```
 
 ## Progress Updates
@@ -240,69 +231,68 @@ Stream progress updates for long-running tasks:
 
 ```typescript
 // src/routes/process/$taskId/get.ts
-import { stream, notFound, type RequestHandler } from '@buildxn/http';
+import { route, stream, notFound } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 import { Readable } from 'node:stream';
 import { taskManager } from '../../../lib/tasks';
 
-type Params = { taskId: string };
+export default route()
+  .params(Type.Object({ taskId: Type.String() }))
+  .handle((req) => {
+    const { taskId } = req.params;
+    const task = taskManager.get(taskId);
 
-const handler: RequestHandler<Params> = (req) => {
-  const { taskId } = req.params;
-  const task = taskManager.get(taskId);
+    if (!task) {
+      return notFound({ error: 'Task not found' });
+    }
 
-  if (!task) {
-    return notFound({ error: 'Task not found' });
-  }
+    const readable = new Readable({
+      read() {},
+    });
 
-  const readable = new Readable({
-    read() {},
-  });
-
-  // Send initial status
-  readable.push(
-    `data: ${JSON.stringify({
-      status: task.status,
-      progress: 0,
-    })}\n\n`,
-  );
-
-  // Listen for progress updates
-  task.on('progress', (progress: number) => {
+    // Send initial status
     readable.push(
       `data: ${JSON.stringify({
-        status: 'processing',
-        progress,
+        status: task.status,
+        progress: 0,
       })}\n\n`,
     );
-  });
 
-  task.on('complete', (result: any) => {
-    readable.push(
-      `data: ${JSON.stringify({
-        status: 'complete',
-        progress: 100,
-        result,
-      })}\n\n`,
-    );
-    readable.push(null);
-  });
+    // Listen for progress updates
+    task.on('progress', (progress: number) => {
+      readable.push(
+        `data: ${JSON.stringify({
+          status: 'processing',
+          progress,
+        })}\n\n`,
+      );
+    });
 
-  task.on('error', (error: Error) => {
-    readable.push(
-      `data: ${JSON.stringify({
-        status: 'error',
-        error: error.message,
-      })}\n\n`,
-    );
-    readable.push(null);
-  });
+    task.on('complete', (result: any) => {
+      readable.push(
+        `data: ${JSON.stringify({
+          status: 'complete',
+          progress: 100,
+          result,
+        })}\n\n`,
+      );
+      readable.push(null);
+    });
 
-  return stream(readable, 'text/event-stream', {
-    'Cache-Control': 'no-cache',
-  });
-};
+    task.on('error', (error: Error) => {
+      readable.push(
+        `data: ${JSON.stringify({
+          status: 'error',
+          error: error.message,
+        })}\n\n`,
+      );
+      readable.push(null);
+    });
 
-export default handler;
+    return stream(readable, 'text/event-stream', {
+      'Cache-Control': 'no-cache',
+    });
+  });
 ```
 
 ## Backpressure Handling
@@ -311,11 +301,11 @@ Handle backpressure when streaming large datasets:
 
 ```typescript
 // src/routes/stream/data/get.ts
-import { stream, type RequestHandler } from '@buildxn/http';
+import { route, stream } from '@buildxn/http';
 import { Readable } from 'node:stream';
 import { db } from '../../../db';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   let cursor = 0;
   const batchSize = 100;
 
@@ -351,9 +341,7 @@ const handler: RequestHandler = () => {
   });
 
   return stream(readable, 'application/x-ndjson');
-};
-
-export default handler;
+});
 ```
 
 ## Testing Streaming Endpoints

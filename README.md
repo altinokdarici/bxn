@@ -30,16 +30,14 @@ pnpm create bxn@latest
 1. **Create a route file** - `src/routes/get.ts`:
 
 ```typescript
-import { json, type RequestHandler } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   return json({
     message: 'Hello, World!',
     timestamp: new Date().toISOString(),
   });
-};
-
-export default handler;
+});
 ```
 
 2. **Run the development server**:
@@ -79,12 +77,12 @@ src/routes/
 
 ### Request Handlers
 
-All route files export a default handler function:
+All route files export a default handler using `route()`:
 
 ```typescript
-import { json } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-export default () => json({ message: 'Success' });
+export default route().handle(() => json({ message: 'Success' }));
 ```
 
 ### Schema Validation
@@ -114,34 +112,34 @@ export default route()
 Get full type safety for path params, query strings, request bodies, **and responses**:
 
 ```typescript
-import { json, notFound, type RequestHandler, type Ok, type NotFound } from '@buildxn/http';
+import { route, json, notFound, StatusCode } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Params = { authorId: string };
-type Query = { include?: string };
+const AuthorSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  email: Type.String(),
+});
 
-interface Author {
-  id: string;
-  name: string;
-  email: string;
-}
+export default route()
+  .params(Type.Object({ authorId: Type.String() }))
+  .query(Type.Object({ include: Type.Optional(Type.String()) }))
+  .response({
+    [StatusCode.Ok]: { body: AuthorSchema },
+    [StatusCode.NotFound]: { body: Type.Object({ error: Type.String() }) },
+  })
+  .handle((req) => {
+    const { authorId } = req.params; // ✅ Type-safe!
+    const { include } = req.query; // ✅ Type-safe!
 
-// Define all possible response types
-type Response = Ok<Author> | NotFound<{ error: string }>;
+    const author = db.authors.get(authorId);
 
-const handler: RequestHandler<Params, Response> = (req): Response => {
-  const { authorId } = req.params; // ✅ Type-safe!
-  const { include } = req.query; // ✅ Type-safe!
+    if (!author) {
+      return notFound({ error: 'Author not found' }); // ✅ Type-safe!
+    }
 
-  const author = db.authors.get(authorId);
-
-  if (!author) {
-    return notFound({ error: 'Author not found' }); // ✅ Type-safe!
-  }
-
-  return json(author); // ✅ Type-safe!
-};
-
-export default handler;
+    return json(author); // ✅ Type-safe!
+  });
 ```
 
 **Benefits of Type-Safe Responses:**
@@ -197,15 +195,20 @@ return status(418);  // HttpResult<void>
 Request bodies are automatically parsed based on `Content-Type`:
 
 ```typescript
-type RequestBody = { name: string; email: string };
-type Response = Created<{ id: string }>;
+import { route, created } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-const handler: RequestHandler<{}, Response, RequestBody> = async (req) => {
-  const { name, email } = req.body; // ✅ Parsed and type-safe
+export default route()
+  .body(Type.Object({
+    name: Type.String(),
+    email: Type.String(),
+  }))
+  .handle(async (req) => {
+    const { name, email } = req.body; // ✅ Parsed and type-safe
 
-  // Validate and process...
-  return created({ id: '123' });
-};
+    // Validate and process...
+    return created({ id: '123' });
+  });
 ```
 
 ### CLI Commands

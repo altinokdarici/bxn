@@ -61,13 +61,11 @@ These parameters are accessible in your request handlers via `req.params`.
 
 ```typescript
 // src/routes/health/get.ts
-import { json, type RequestHandler } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   return json({ status: 'ok' });
-};
-
-export default handler;
+});
 ```
 
 **Maps to:** `GET /health`
@@ -76,25 +74,27 @@ export default handler;
 
 ```typescript
 // src/routes/users/get.ts
-import { json, type RequestHandler } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   return json({ users: db.users.getAll() });
-};
-
-export default handler;
+});
 ```
 
 ```typescript
 // src/routes/users/post.ts
-import { created, type RequestHandler } from '@buildxn/http';
+import { route, created } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-const handler: RequestHandler = (req) => {
-  const user = db.users.create(req.body);
-  return created(user, `/users/${user.id}`);
-};
-
-export default handler;
+export default route()
+  .body(Type.Object({
+    name: Type.String(),
+    email: Type.String(),
+  }))
+  .handle((req) => {
+    const user = db.users.create(req.body);
+    return created(user, `/users/${user.id}`);
+  });
 ```
 
 **Maps to:**
@@ -106,21 +106,20 @@ export default handler;
 
 ```typescript
 // src/routes/users/$userId/get.ts
-import { json, notFound, type RequestHandler } from '@buildxn/http';
+import { route, json, notFound } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Params = { userId: string };
+export default route()
+  .params(Type.Object({ userId: Type.String() }))
+  .handle((req) => {
+    const user = db.users.get(req.params.userId);
 
-const handler: RequestHandler<Params> = (req) => {
-  const user = db.users.get(req.params.userId);
+    if (!user) {
+      return notFound({ error: 'User not found' });
+    }
 
-  if (!user) {
-    return notFound({ error: 'User not found' });
-  }
-
-  return json(user);
-};
-
-export default handler;
+    return json(user);
+  });
 ```
 
 **Maps to:** `GET /users/:userId`
@@ -129,22 +128,24 @@ export default handler;
 
 ```typescript
 // src/routes/users/$userId/posts/$postId/get.ts
-import { json, notFound, type RequestHandler } from '@buildxn/http';
+import { route, json, notFound } from '@buildxn/http';
+import { Type } from '@sinclair/typebox';
 
-type Params = { userId: string; postId: string };
+export default route()
+  .params(Type.Object({
+    userId: Type.String(),
+    postId: Type.String(),
+  }))
+  .handle((req) => {
+    const { userId, postId } = req.params;
+    const post = db.posts.getByUserAndId(userId, postId);
 
-const handler: RequestHandler<Params> = (req) => {
-  const { userId, postId } = req.params;
-  const post = db.posts.getByUserAndId(userId, postId);
+    if (!post) {
+      return notFound({ error: 'Post not found' });
+    }
 
-  if (!post) {
-    return notFound({ error: 'Post not found' });
-  }
-
-  return json(post);
-};
-
-export default handler;
+    return json(post);
+  });
 ```
 
 **Maps to:** `GET /users/:userId/posts/:postId`

@@ -114,16 +114,14 @@ Then add these scripts to your `package.json`:
 Create a simple route file at `src/routes/get.ts`:
 
 ```typescript
-import { json, type RequestHandler } from '@buildxn/http';
+import { route, json } from '@buildxn/http';
 
-const handler: RequestHandler = () => {
+export default route().handle(() => {
   return json({
     message: 'Hello, World!',
     timestamp: new Date().toISOString(),
   });
-};
-
-export default handler;
+});
 ```
 
 ## Run the Development Server
