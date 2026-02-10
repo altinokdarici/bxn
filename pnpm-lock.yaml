@@ -13,7 +13,7 @@ importers:
         version: 10.0.1(eslint@10.0.0(jiti@2.6.1))
       '@types/node':
         specifier: ^24.7.2
-        version: 24.10.12
+        version: 24.10.13
       eslint:
         specifier: ^10.0.0
         version: 10.0.0(jiti@2.6.1)
@@ -25,7 +25,7 @@ importers:
         version: 17.3.0
       knip:
         specifier: ^5.82.1
-        version: 5.83.0(@types/node@24.10.12)(typescript@5.9.3)
+        version: 5.83.0(@types/node@24.10.13)(typescript@5.9.3)
       prettier:
         specifier: ^3.7.4
         version: 3.8.1
@@ -59,7 +59,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
-        version: 24.10.12
+        version: 24.10.13
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -78,7 +78,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
-        version: 24.10.12
+        version: 24.10.13
       tsup:
         specifier: ^8.5.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)
@@ -94,7 +94,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
-        version: 24.10.12
+        version: 24.10.13
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -113,7 +113,7 @@ importers:
         version: 0.34.48
       '@types/node':
         specifier: ^24.0.0
-        version: 24.10.12
+        version: 24.10.13
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -1120,8 +1120,8 @@ packages:
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
-  '@types/node@24.10.12':
-    resolution: {integrity: sha512-68e+T28EbdmLSTkPgs3+UacC6rzmqrcWFPQs1C8mwJhI/r5Uxr0yEuQotczNRROd1gq30NGxee+fo0rSIxpyAw==}
+  '@types/node@24.10.13':
+    resolution: {integrity: sha512-oH72nZRfDv9lADUBSo104Aq7gPHpQZc4BTx38r9xf9pg5LfP6EzSyH2n7qFmmxRQXh7YlUXODcYsg6PuTDSxGg==}
 
   '@types/node@25.2.0':
     resolution: {integrity: sha512-DZ8VwRFUNzuqJ5khrvwMXHmvPe+zGayJhr2CDNiKB1WBE1ST8Djl00D0IC4vvNmHMdj6DlbYRIaFE7WHjlDl5w==}
@@ -3657,7 +3657,7 @@ snapshots:
 
   '@types/node@17.0.45': {}
 
-  '@types/node@24.10.12':
+  '@types/node@24.10.13':
     dependencies:
       undici-types: 7.16.0
 
@@ -4686,10 +4686,10 @@ snapshots:
 
   klona@2.0.6: {}
 
-  knip@5.83.0(@types/node@24.10.12)(typescript@5.9.3):
+  knip@5.83.0(@types/node@24.10.13)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
-      '@types/node': 24.10.12
+      '@types/node': 24.10.13
       fast-glob: 3.3.3
       formatly: 0.3.0
       jiti: 2.6.1
