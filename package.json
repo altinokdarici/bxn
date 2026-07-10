@@ -1,7 +1,7 @@
 {
   "name": "bxn-repo",
   "private": true,
-  "packageManager": "pnpm@10.34.4",
+  "packageManager": "pnpm@10.34.5",
   "engines": {
     "node": ">=25.0.0"
   },
