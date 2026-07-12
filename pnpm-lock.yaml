@@ -52,7 +52,7 @@ importers:
         version: link:../../packages/http
       '@sinclair/typebox':
         specifier: ^0.34.30
-        version: 0.34.51
+        version: 0.34.52
       bxn:
         specifier: workspace:^
         version: link:../../packages/cli
@@ -110,7 +110,7 @@ importers:
     devDependencies:
       '@sinclair/typebox':
         specifier: ^0.34.41
-        version: 0.34.51
+        version: 0.34.52
       '@types/node':
         specifier: ^24.0.0
         version: 24.13.3
@@ -1379,8 +1379,8 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@sinclair/typebox@0.34.51':
-    resolution: {integrity: sha512-Nu4sNPT4G3QgAvxmdUCR/NBmsi23F2tEIcbMOZJVHS+qEgk+rmXxQikEeoKFyaX+UEggAoTvHUvIlj8MfYPzXQ==}
+  '@sinclair/typebox@0.34.52':
+    resolution: {integrity: sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw==}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -4157,7 +4157,7 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@sinclair/typebox@0.34.51': {}
+  '@sinclair/typebox@0.34.52': {}
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
