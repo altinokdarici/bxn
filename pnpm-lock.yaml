@@ -74,7 +74,7 @@ importers:
         version: 1.9.0
       cac:
         specifier: ^7.0.0
-        version: 7.1.0
+        version: 7.1.1
     devDependencies:
       '@types/node':
         specifier: ^26.0.0
@@ -1653,8 +1653,8 @@ packages:
     peerDependencies:
       esbuild: '>=0.18'
 
-  cac@7.1.0:
-    resolution: {integrity: sha512-LMDU/U2yA4IPIY8KT0NsNPWEYZvAMkbgyspxJ6btJaYV+WMDOHAZCmB0lsTObiHaRS1V/ztKAl7+TSkTqXyeoA==}
+  cac@7.1.1:
+    resolution: {integrity: sha512-8zc+h51HxpodKsA7L4PpBNd+9qlrfuUcyUDE5a793BJfN4NZgwk7v9NmrY3ptZ+Sk0+ToigxSzkb47AsEgyizw==}
     engines: {node: '>=20.19.0'}
 
   cacheable@2.5.0:
@@ -4592,7 +4592,7 @@ snapshots:
       esbuild: 0.28.2
       load-tsconfig: 0.2.5
 
-  cac@7.1.0: {}
+  cac@7.1.1: {}
 
   cacheable@2.5.0:
     dependencies:
@@ -6532,7 +6532,7 @@ snapshots:
   tsup@9.0.0(jiti@2.6.1)(postcss@8.5.15)(tsx@4.20.6)(typescript@5.9.3):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.28.2)
-      cac: 7.1.0
+      cac: 7.1.1
       chokidar: 5.0.0
       consola: 3.4.2
       esbuild: 0.28.2
